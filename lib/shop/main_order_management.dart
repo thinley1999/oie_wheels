@@ -106,7 +106,8 @@ class _OpenState extends State<Open> {
     return (shopName != null) ? StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection('OrderHistory')
           .where('orderFrom', isEqualTo: shopName)
-          .where('status', whereIn: ['unassigned orders', 'order received'])
+          .where('status', isEqualTo: 'unassigned orders')
+          .orderBy('dateTime', descending: true)
           .snapshots(),
       builder: (BuildContext context, snapshot) {
         if (!snapshot.hasData) {
@@ -121,330 +122,218 @@ class _OpenState extends State<Open> {
             ),
           );
         } else {
-          return snapshot.data!.docs.isNotEmpty ? ListView.builder(
-              shrinkWrap: true,
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot doc = snapshot.data!.docs[index];
-                DateTime formattedDate = DateTime.parse(doc['dateTime']);
-                String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
-                String dateTime2 = DateFormat.jm().format(formattedDate);
-                return Container(
-                  color: Colors.white,
-                  margin: EdgeInsets.only(bottom: 10.h),
-                  child: Column(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(color: Colors.grey)
-                            )
+          return snapshot.data!.docs.isNotEmpty ? SingleChildScrollView(
+            child: ListView.builder(
+                shrinkWrap: true,
+                physics: ClampingScrollPhysics(),
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot doc = snapshot.data!.docs[index];
+                  DateTime formattedDate = DateTime.parse(doc['dateTime']);
+                  String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
+                  String dateTime2 = DateFormat.jm().format(formattedDate);
+                  return Container(
+                    color: Colors.white,
+                    margin: EdgeInsets.only(bottom: 10.h),
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              border: Border(
+                                  bottom: BorderSide(color: Colors.grey)
+                              )
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                          child: Row(
+                            children: [
+                              Icon(FontAwesomeIcons.clock, size: 18.sp, color: Colors.grey),
+                              SizedBox(width: 10.w),
+                              Text(dateTime, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.grey)),
+                            ],
+                          ),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                        child: Row(
-                          children: [
-                            Icon(FontAwesomeIcons.clock, size: 18.sp, color: Colors.grey),
-                            SizedBox(width: 10.w),
-                            Text(dateTime, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.grey)),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text('Order Id:', style: GoogleFonts.inter(fontSize: 13.sp)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text('Order Placed at:', style: GoogleFonts.inter(fontSize: 13.sp)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text('Order Status:', style: GoogleFonts.inter(fontSize: 13.sp)),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(width: 50.w),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text(doc['orderId'], style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.black.withOpacity(0.55), fontWeight: FontWeight.w600)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text(dateTime2, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.black.withOpacity(0.55), fontWeight: FontWeight.w600)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text(doc['status'], style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.green, fontWeight: FontWeight.w600)),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 10.h),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return Dialog(
-                                            child: Container(
-                                              height: 150.h,
-                                              width: MediaQuery.of(context).size.width,
-                                              child: Stack(
-                                                children: [
-                                                  Column(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    children: [
-                                                      Padding(
-                                                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                                                        child: Align(
-                                                          alignment: Alignment.topCenter,
-                                                          child: Text('Status',
-                                                            style: GoogleFonts.inter(
-                                                                fontSize: 16.sp,
-                                                                color: Colors.black,
-                                                                fontWeight: FontWeight.w800
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text('Order Id:', style: GoogleFonts.inter(fontSize: 13.sp)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text('Order Placed at:', style: GoogleFonts.inter(fontSize: 13.sp)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text('Order Status:', style: GoogleFonts.inter(fontSize: 13.sp)),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(width: 50.w),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text(doc['orderId'], style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.black.withOpacity(0.55), fontWeight: FontWeight.w600)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text(dateTime2, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.black.withOpacity(0.55), fontWeight: FontWeight.w600)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text(doc['status'], style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.green, fontWeight: FontWeight.w600)),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 10.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return Dialog(
+                                              child: Container(
+                                                height: 90.h,
+                                                width: MediaQuery.of(context).size.width,
+                                                child: Stack(
+                                                  children: [
+                                                    Column(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
+                                                        Padding(
+                                                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                                                          child: Align(
+                                                            alignment: Alignment.topCenter,
+                                                            child: Text('Status',
+                                                              style: GoogleFonts.inter(
+                                                                  fontSize: 16.sp,
+                                                                  color: Colors.black,
+                                                                  fontWeight: FontWeight.w800
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
-                                                      (doc['status'] != 'order received') ? Padding(
-                                                        padding: EdgeInsets.fromLTRB(10.w, 0, 10.w, 5.h),
-                                                        child: SizedBox(
-                                                          height: 30.h,
-                                                          child: TextFormField(
-                                                            onTap: () {
-                                                              FirebaseFirestore.instance
-                                                                  .collection("Order")
-                                                                  .doc(doc['uid'])
-                                                                  .collection("ConfirmOrder")
-                                                                  .where('dateTime', isEqualTo: doc['dateTime'])
-                                                                  .get()
-                                                                  .then((value) {
-                                                                value.docs.forEach((result) {
-                                                                  FirebaseFirestore.instance
-                                                                      .collection('Order')
-                                                                      .doc(result.data()['uid'])
-                                                                      .collection('ConfirmOrder')
-                                                                      .doc(result.data()['oId'])
-                                                                      .update({
-                                                                    'status': 'order received',
+                                                        (doc['status'] != 'order confirm') ? Padding(
+                                                          padding: EdgeInsets.fromLTRB(10.w, 0, 10.w, 5.h),
+                                                          child: SizedBox(
+                                                            height: 30.h,
+                                                            child: TextFormField(
+                                                              onTap: () {
+                                                                FirebaseFirestore.instance
+                                                                    .collection("Order")
+                                                                    .doc(doc['uid'])
+                                                                    .collection("ConfirmOrder")
+                                                                    .where('dateTime', isEqualTo: doc['dateTime'])
+                                                                    .get()
+                                                                    .then((value) {
+                                                                  value.docs.forEach((result) {
+                                                                    FirebaseFirestore.instance
+                                                                        .collection('Order')
+                                                                        .doc(result.data()['uid'])
+                                                                        .collection('ConfirmOrder')
+                                                                        .doc(result.data()['oId'])
+                                                                        .update({
+                                                                      'status': 'order confirm',
+                                                                    });
                                                                   });
                                                                 });
-                                                              });
-                                                              FirebaseFirestore.instance.collection('OrderHistory').doc(doc['orderId']).update({
-                                                                'status': 'order received'
-                                                              }).then((value) {
-                                                                Navigator.pop(context);
-                                                                Fluttertoast.showToast(
-                                                                    msg: 'Update status success!!!',
-                                                                    gravity: ToastGravity.CENTER,
-                                                                    timeInSecForIosWeb: 1,
-                                                                    backgroundColor: Colors.red,
-                                                                    textColor: Colors.white,
-                                                                    fontSize: 13.sp
-                                                                );
-                                                              });
-                                                            },
-                                                            readOnly: true,
-                                                            style: GoogleFonts.inter(fontSize: 13.sp),
-                                                            textAlign: TextAlign.start,
-                                                            decoration: InputDecoration(
-                                                              hintText: 'ORDER RECEIVED',
-                                                              hintStyle: GoogleFonts.inter(fontSize: 13.sp),
-                                                              contentPadding: EdgeInsets.only(left: 10.w),
-                                                              border: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.grey),
-                                                                borderRadius: BorderRadius.circular(2.sp),
-                                                              ),
-                                                              errorBorder: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.red),
-                                                                borderRadius: BorderRadius.circular(0),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
-                                                          : SizedBox(),
-                                                      (doc['status'] != 'being prepared') ? Padding(
-                                                        padding: EdgeInsets.fromLTRB(10.w, 0, 10.w, 5.h),
-                                                        child: SizedBox(
-                                                          height: 30.h,
-                                                          child: TextFormField(
-                                                            onTap: () {
-                                                              FirebaseFirestore.instance
-                                                                  .collection("Order")
-                                                                  .doc(doc['uid'])
-                                                                  .collection("ConfirmOrder")
-                                                                  .where('dateTime', isEqualTo: doc['dateTime'])
-                                                                  .get()
-                                                                  .then((value) {
-                                                                value.docs.forEach((result) {
-                                                                  FirebaseFirestore.instance
-                                                                      .collection('Order')
-                                                                      .doc(result.data()['uid'])
-                                                                      .collection('ConfirmOrder')
-                                                                      .doc(result.data()['oId'])
-                                                                      .update({
-                                                                    'status': 'being prepared',
-                                                                  });
+                                                                FirebaseFirestore.instance.collection('OrderHistory').doc(doc['orderId']).update({
+                                                                  'status': 'order confirm',
+                                                                  'cancel': false,
+                                                                }).then((value) {
+                                                                  Navigator.pop(context);
+                                                                  Fluttertoast.showToast(
+                                                                      msg: 'Update status success!!!',
+                                                                      gravity: ToastGravity.CENTER,
+                                                                      timeInSecForIosWeb: 1,
+                                                                      backgroundColor: Colors.red,
+                                                                      textColor: Colors.white,
+                                                                      fontSize: 13.sp
+                                                                  );
                                                                 });
-                                                              });
-                                                              FirebaseFirestore.instance.collection('OrderHistory').doc(doc['orderId']).update({
-                                                                'status': 'being prepared'
-                                                              }).then((value) {
-                                                                Navigator.pop(context);
-                                                                Fluttertoast.showToast(
-                                                                    msg: 'Update status success!!!',
-                                                                    gravity: ToastGravity.CENTER,
-                                                                    timeInSecForIosWeb: 1,
-                                                                    backgroundColor: Colors.red,
-                                                                    textColor: Colors.white,
-                                                                    fontSize: 13.sp
-                                                                );
-                                                              });
-                                                            },
-                                                            readOnly: true,
-                                                            style: GoogleFonts.inter(fontSize: 13.sp),
-                                                            textAlign: TextAlign.start,
-                                                            decoration: InputDecoration(
-                                                              hintText: 'BEING PREPARED',
-                                                              hintStyle: GoogleFonts.inter(fontSize: 13.sp),
-                                                              contentPadding: EdgeInsets.only(left: 10.w),
-                                                              border: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.grey),
-                                                                borderRadius: BorderRadius.circular(2.sp),
-                                                              ),
-                                                              errorBorder: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.red),
-                                                                borderRadius: BorderRadius.circular(0),
+                                                              },
+                                                              readOnly: true,
+                                                              style: GoogleFonts.inter(fontSize: 13.sp),
+                                                              textAlign: TextAlign.start,
+                                                              decoration: InputDecoration(
+                                                                hintText: 'ORDER CONFIRM',
+                                                                hintStyle: GoogleFonts.inter(fontSize: 13.sp),
+                                                                contentPadding: EdgeInsets.only(left: 10.w),
+                                                                border: OutlineInputBorder(
+                                                                  borderSide: BorderSide(color: Colors.grey),
+                                                                  borderRadius: BorderRadius.circular(2.sp),
+                                                                ),
+                                                                errorBorder: OutlineInputBorder(
+                                                                  borderSide: BorderSide(color: Colors.red),
+                                                                  borderRadius: BorderRadius.circular(0),
+                                                                ),
                                                               ),
                                                             ),
                                                           ),
-                                                        ),
-                                                      )
-                                                          : SizedBox(),
-                                                      (doc['status'] != 'order confirm') ? Padding(
-                                                        padding: EdgeInsets.fromLTRB(10.w, 0, 10.w, 5.h),
-                                                        child: SizedBox(
-                                                          height: 30.h,
-                                                          child: TextFormField(
-                                                            onTap: () {
-                                                              FirebaseFirestore.instance
-                                                                  .collection("Order")
-                                                                  .doc(doc['uid'])
-                                                                  .collection("ConfirmOrder")
-                                                                  .where('dateTime', isEqualTo: doc['dateTime'])
-                                                                  .get()
-                                                                  .then((value) {
-                                                                value.docs.forEach((result) {
-                                                                  FirebaseFirestore.instance
-                                                                      .collection('Order')
-                                                                      .doc(result.data()['uid'])
-                                                                      .collection('ConfirmOrder')
-                                                                      .doc(result.data()['oId'])
-                                                                      .update({
-                                                                    'status': 'order confirm',
-                                                                  });
-                                                                });
-                                                              });
-                                                              FirebaseFirestore.instance.collection('OrderHistory').doc(doc['orderId']).update({
-                                                                'status': 'order confirmed'
-                                                              }).then((value) {
-                                                                Navigator.pop(context);
-                                                                Fluttertoast.showToast(
-                                                                    msg: 'Update status success!!!',
-                                                                    gravity: ToastGravity.CENTER,
-                                                                    timeInSecForIosWeb: 1,
-                                                                    backgroundColor: Colors.red,
-                                                                    textColor: Colors.white,
-                                                                    fontSize: 13.sp
-                                                                );
-                                                              });
-                                                            },
-                                                            readOnly: true,
-                                                            style: GoogleFonts.inter(fontSize: 13.sp),
-                                                            textAlign: TextAlign.start,
-                                                            decoration: InputDecoration(
-                                                              hintText: 'ORDER CONFIRM',
-                                                              hintStyle: GoogleFonts.inter(fontSize: 13.sp),
-                                                              contentPadding: EdgeInsets.only(left: 10.w),
-                                                              border: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.grey),
-                                                                borderRadius: BorderRadius.circular(2.sp),
-                                                              ),
-                                                              errorBorder: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.red),
-                                                                borderRadius: BorderRadius.circular(0),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      )
-                                                          : SizedBox(),
-                                                    ],
-                                                  ),
-                                                  Positioned(
-                                                    right: 0,
-                                                    child: IconButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                      },
-                                                      icon: Icon(Icons.clear, size: 25.sp,),
+                                                        )
+                                                            : SizedBox(),
+                                                      ],
                                                     ),
-                                                  ),
-                                                ],
+                                                    Positioned(
+                                                      right: 0,
+                                                      child: IconButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(context);
+                                                        },
+                                                        icon: Icon(Icons.clear, size: 25.sp,),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                          );
-                                        }
-                                    );
-                                  },
-                                  child: Container(
-                                    color: Colors.green[900],
-                                    padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
-                                    child: Text('CHANGE STATUS', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white, fontWeight: FontWeight.w600)),
+                                            );
+                                          }
+                                      );
+                                    },
+                                    child: Container(
+                                      color: Colors.green[900],
+                                      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
+                                      child: Text('CHANGE STATUS', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white, fontWeight: FontWeight.w600)),
+                                    ),
                                   ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    FirebaseFirestore.instance.collection('EditItem').doc((_auth.currentUser)!.uid).collection('StoreItem').doc((_auth.currentUser)!.uid).set({
-                                      'uid': doc['uid'],
-                                      'dateTime': doc['dateTime'],
-                                      'orderId': doc['orderId'],
-                                    });
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => OrderManagement()));
-                                  },
-                                  child: Container(
-                                    color: Colors.amber[900],
-                                    padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 8.h),
-                                    child: Text('VIEW DETAILS', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white, fontWeight: FontWeight.w600)),
+                                  GestureDetector(
+                                    onTap: () {
+                                      FirebaseFirestore.instance.collection('EditItem').doc((_auth.currentUser)!.uid).collection('StoreItem').doc((_auth.currentUser)!.uid).set({
+                                        'uid': doc['uid'],
+                                        'dateTime': doc['dateTime'],
+                                        'orderId': doc['orderId'],
+                                      });
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => OrderManagement()));
+                                    },
+                                    child: Container(
+                                      color: Colors.amber[900],
+                                      padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 8.h),
+                                      child: Text('VIEW DETAILS', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white, fontWeight: FontWeight.w600)),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              }
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                }
+            ),
           )
               : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -497,7 +386,8 @@ class _CurrentState extends State<Current> {
     return (shopName != null) ? StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection('OrderHistory')
           .where('orderFrom', isEqualTo: shopName)
-          .where('status', whereIn: ['being prepared', 'order confirm', 'on the way'])
+          .where('status', whereIn: ['order confirm', 'on the way'])
+          .orderBy('dateTime', descending: true)
           .snapshots(),
       builder: (BuildContext context, snapshot) {
         if (!snapshot.hasData) {
@@ -512,272 +402,277 @@ class _CurrentState extends State<Current> {
             ),
           );
         } else {
-          return snapshot.data!.docs.isNotEmpty ? ListView.builder(
-              shrinkWrap: true,
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot doc = snapshot.data!.docs[index];
-                DateTime formattedDate = DateTime.parse(doc['dateTime']);
-                String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
-                String dateTime2 = DateFormat.jm().format(formattedDate);
-                return Container(
-                  color: Colors.white,
-                  margin: EdgeInsets.only(bottom: 10.h),
-                  child: Column(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(color: Colors.grey)
-                            )
+          return snapshot.data!.docs.isNotEmpty ? SingleChildScrollView(
+            child: ListView.builder(
+                shrinkWrap: true,
+                physics: ClampingScrollPhysics(),
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot doc = snapshot.data!.docs[index];
+                  DateTime formattedDate = DateTime.parse(doc['dateTime']);
+                  String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
+                  String dateTime2 = DateFormat.jm().format(formattedDate);
+                  return Container(
+                    color: Colors.white,
+                    margin: EdgeInsets.only(bottom: 10.h),
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              border: Border(
+                                  bottom: BorderSide(color: Colors.grey)
+                              )
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                          child: Row(
+                            children: [
+                              Icon(FontAwesomeIcons.clock, size: 18.sp, color: Colors.grey),
+                              SizedBox(width: 10.w),
+                              Text(dateTime, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.grey)),
+                            ],
+                          ),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                        child: Row(
-                          children: [
-                            Icon(FontAwesomeIcons.clock, size: 18.sp, color: Colors.grey),
-                            SizedBox(width: 10.w),
-                            Text(dateTime, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.grey)),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text('Order Id:', style: GoogleFonts.inter(fontSize: 13.sp)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text('Order Placed at:', style: GoogleFonts.inter(fontSize: 13.sp)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text('Order Status:', style: GoogleFonts.inter(fontSize: 13.sp)),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(width: 50.w),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text(doc['orderId'], style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.black.withOpacity(0.55), fontWeight: FontWeight.w600)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text(dateTime2, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.black.withOpacity(0.55), fontWeight: FontWeight.w600)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text(doc['status'], style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.green, fontWeight: FontWeight.w600)),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 10.h),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return Dialog(
-                                            child: Container(
-                                              height: 120.h,
-                                              width: MediaQuery.of(context).size.width,
-                                              child: Stack(
-                                                children: [
-                                                  Column(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    children: [
-                                                      Padding(
-                                                        padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                                        child: Align(
-                                                          alignment: Alignment.topCenter,
-                                                          child: Text('Status',
-                                                            style: GoogleFonts.inter(
-                                                                fontSize: 16.sp,
-                                                                color: Colors.black,
-                                                                fontWeight: FontWeight.w800
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text('Order Id:', style: GoogleFonts.inter(fontSize: 13.sp)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text('Order Placed at:', style: GoogleFonts.inter(fontSize: 13.sp)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text('Order Status:', style: GoogleFonts.inter(fontSize: 13.sp)),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(width: 50.w),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text(doc['orderId'], style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.black.withOpacity(0.55), fontWeight: FontWeight.w600)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text(dateTime2, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.black.withOpacity(0.55), fontWeight: FontWeight.w600)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text(doc['status'], style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.green, fontWeight: FontWeight.w600)),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 10.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return Dialog(
+                                              child: Container(
+                                                height: 120.h,
+                                                width: MediaQuery.of(context).size.width,
+                                                child: Stack(
+                                                  children: [
+                                                    Column(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
+                                                        Padding(
+                                                          padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                                          child: Align(
+                                                            alignment: Alignment.topCenter,
+                                                            child: Text('Status',
+                                                              style: GoogleFonts.inter(
+                                                                  fontSize: 16.sp,
+                                                                  color: Colors.black,
+                                                                  fontWeight: FontWeight.w800
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
-                                                      (doc['status'] != 'on the way') ? Padding(
-                                                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                                                        child: SizedBox(
-                                                          height: 30.h,
-                                                          child: TextFormField(
-                                                            onTap: () {
-                                                              FirebaseFirestore.instance
-                                                                  .collection("Order")
-                                                                  .doc(doc['uid'])
-                                                                  .collection("ConfirmOrder")
-                                                                  .where('dateTime', isEqualTo: doc['dateTime'])
-                                                                  .get()
-                                                                  .then((value) {
-                                                                value.docs.forEach((result) {
-                                                                  FirebaseFirestore.instance
-                                                                      .collection('Order')
-                                                                      .doc(result.data()['uid'])
-                                                                      .collection('ConfirmOrder')
-                                                                      .doc(result.data()['oId'])
-                                                                      .update({
-                                                                    'status': 'on the way',
+                                                        (doc['status'] != 'on the way') ? Padding(
+                                                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                                                          child: SizedBox(
+                                                            height: 30.h,
+                                                            child: TextFormField(
+                                                              onTap: () {
+                                                                FirebaseFirestore.instance
+                                                                    .collection("Order")
+                                                                    .doc(doc['uid'])
+                                                                    .collection("ConfirmOrder")
+                                                                    .where('dateTime', isEqualTo: doc['dateTime'])
+                                                                    .get()
+                                                                    .then((value) {
+                                                                  value.docs.forEach((result) {
+                                                                    FirebaseFirestore.instance
+                                                                        .collection('Order')
+                                                                        .doc(result.data()['uid'])
+                                                                        .collection('ConfirmOrder')
+                                                                        .doc(result.data()['oId'])
+                                                                        .update({
+                                                                      'status': 'on the way',
+                                                                    });
                                                                   });
                                                                 });
-                                                              });
-                                                              FirebaseFirestore.instance.collection('OrderHistory').doc(doc['orderId']).update({
-                                                                'status': 'on the way'
-                                                              }).then((value) {
-                                                                Navigator.pop(context);
-                                                                Fluttertoast.showToast(
-                                                                    msg: 'Update status success!!!',
-                                                                    gravity: ToastGravity.CENTER,
-                                                                    timeInSecForIosWeb: 1,
-                                                                    backgroundColor: Colors.red,
-                                                                    textColor: Colors.white,
-                                                                    fontSize: 13.sp
-                                                                );
-                                                              });
-                                                            },
-                                                            readOnly: true,
-                                                            style: GoogleFonts.inter(fontSize: 13.sp),
-                                                            textAlign: TextAlign.start,
-                                                            decoration: InputDecoration(
-                                                              hintText: 'ON THE ROAD',
-                                                              hintStyle: GoogleFonts.inter(fontSize: 13.sp),
-                                                              contentPadding: EdgeInsets.only(left: 10.w),
-                                                              border: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.grey),
-                                                                borderRadius: BorderRadius.circular(2.sp),
-                                                              ),
-                                                              errorBorder: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.red),
-                                                                borderRadius: BorderRadius.circular(0),
+                                                                FirebaseFirestore.instance.collection('OrderHistory').doc(doc['orderId']).update({
+                                                                  'status': 'on the way',
+                                                                  'cancel': false,
+                                                                }).then((value) {
+                                                                  Navigator.pop(context);
+                                                                  Fluttertoast.showToast(
+                                                                      msg: 'Update status success!!!',
+                                                                      gravity: ToastGravity.CENTER,
+                                                                      timeInSecForIosWeb: 1,
+                                                                      backgroundColor: Colors.red,
+                                                                      textColor: Colors.white,
+                                                                      fontSize: 13.sp
+                                                                  );
+                                                                });
+                                                              },
+                                                              readOnly: true,
+                                                              style: GoogleFonts.inter(fontSize: 13.sp),
+                                                              textAlign: TextAlign.start,
+                                                              decoration: InputDecoration(
+                                                                hintText: 'ON THE ROAD',
+                                                                hintStyle: GoogleFonts.inter(fontSize: 13.sp),
+                                                                contentPadding: EdgeInsets.only(left: 10.w),
+                                                                border: OutlineInputBorder(
+                                                                  borderSide: BorderSide(color: Colors.grey),
+                                                                  borderRadius: BorderRadius.circular(2.sp),
+                                                                ),
+                                                                errorBorder: OutlineInputBorder(
+                                                                  borderSide: BorderSide(color: Colors.red),
+                                                                  borderRadius: BorderRadius.circular(0),
+                                                                ),
                                                               ),
                                                             ),
                                                           ),
-                                                        ),
-                                                      )
-                                                          : SizedBox(),
-                                                      (doc['status'] != 'delivered') ? Padding(
-                                                        padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                                        child: SizedBox(
-                                                          height: 30.h,
-                                                          child: TextFormField(
-                                                            onTap: () {
-                                                              FirebaseFirestore.instance
-                                                                  .collection("Order")
-                                                                  .doc(doc['uid'])
-                                                                  .collection("ConfirmOrder")
-                                                                  .where('dateTime', isEqualTo: doc['dateTime'])
-                                                                  .get()
-                                                                  .then((value) {
-                                                                value.docs.forEach((result) {
-                                                                  FirebaseFirestore.instance
-                                                                      .collection('Order')
-                                                                      .doc(result.data()['uid'])
-                                                                      .collection('ConfirmOrder')
-                                                                      .doc(result.data()['oId'])
-                                                                      .update({
-                                                                    'status': 'delivered',
+                                                        )
+                                                            : SizedBox(),
+                                                        (doc['status'] != 'delivered') ? Padding(
+                                                          padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                                          child: SizedBox(
+                                                            height: 30.h,
+                                                            child: TextFormField(
+                                                              onTap: () {
+                                                                FirebaseFirestore.instance
+                                                                    .collection("Order")
+                                                                    .doc(doc['uid'])
+                                                                    .collection("ConfirmOrder")
+                                                                    .where('dateTime', isEqualTo: doc['dateTime'])
+                                                                    .get()
+                                                                    .then((value) {
+                                                                  value.docs.forEach((result) {
+                                                                    FirebaseFirestore.instance
+                                                                        .collection('Order')
+                                                                        .doc(result.data()['uid'])
+                                                                        .collection('ConfirmOrder')
+                                                                        .doc(result.data()['oId'])
+                                                                        .update({
+                                                                      'status': 'delivered',
+                                                                    });
                                                                   });
                                                                 });
-                                                              });
-                                                              FirebaseFirestore.instance.collection('OrderHistory').doc(doc['orderId']).update({
-                                                                'status': 'delivered'
-                                                              }).then((value) {
-                                                                Navigator.pop(context);
-                                                                Fluttertoast.showToast(
-                                                                    msg: 'Update status success!!!',
-                                                                    gravity: ToastGravity.CENTER,
-                                                                    timeInSecForIosWeb: 1,
-                                                                    backgroundColor: Colors.red,
-                                                                    textColor: Colors.white,
-                                                                    fontSize: 13.sp
-                                                                );
-                                                              });
-                                                            },
-                                                            readOnly: true,
-                                                            style: GoogleFonts.inter(fontSize: 13.sp),
-                                                            textAlign: TextAlign.start,
-                                                            decoration: InputDecoration(
-                                                              hintText: 'DELIVERED',
-                                                              hintStyle: GoogleFonts.inter(fontSize: 13.sp),
-                                                              contentPadding: EdgeInsets.only(left: 10.w),
-                                                              border: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.grey),
-                                                                borderRadius: BorderRadius.circular(2.sp),
-                                                              ),
-                                                              errorBorder: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.red),
-                                                                borderRadius: BorderRadius.circular(0),
+                                                                FirebaseFirestore.instance.collection('OrderHistory').doc(doc['orderId']).update({
+                                                                  'status': 'delivered',
+                                                                  'cancel': false,
+                                                                }).then((value) {
+                                                                  Navigator.pop(context);
+                                                                  Fluttertoast.showToast(
+                                                                      msg: 'Update status success!!!',
+                                                                      gravity: ToastGravity.CENTER,
+                                                                      timeInSecForIosWeb: 1,
+                                                                      backgroundColor: Colors.red,
+                                                                      textColor: Colors.white,
+                                                                      fontSize: 13.sp
+                                                                  );
+                                                                });
+                                                              },
+                                                              readOnly: true,
+                                                              style: GoogleFonts.inter(fontSize: 13.sp),
+                                                              textAlign: TextAlign.start,
+                                                              decoration: InputDecoration(
+                                                                hintText: 'DELIVERED',
+                                                                hintStyle: GoogleFonts.inter(fontSize: 13.sp),
+                                                                contentPadding: EdgeInsets.only(left: 10.w),
+                                                                border: OutlineInputBorder(
+                                                                  borderSide: BorderSide(color: Colors.grey),
+                                                                  borderRadius: BorderRadius.circular(2.sp),
+                                                                ),
+                                                                errorBorder: OutlineInputBorder(
+                                                                  borderSide: BorderSide(color: Colors.red),
+                                                                  borderRadius: BorderRadius.circular(0),
+                                                                ),
                                                               ),
                                                             ),
                                                           ),
-                                                        ),
-                                                      )
-                                                          : SizedBox(),
-                                                    ],
-                                                  ),
-                                                  Positioned(
-                                                    right: 0,
-                                                    child: IconButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                      },
-                                                      icon: Icon(Icons.clear, size: 25.sp,),
+                                                        )
+                                                            : SizedBox(),
+                                                      ],
                                                     ),
-                                                  ),
-                                                ],
+                                                    Positioned(
+                                                      right: 0,
+                                                      child: IconButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(context);
+                                                        },
+                                                        icon: Icon(Icons.clear, size: 25.sp,),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                          );
-                                        }
-                                    );
-                                  },
-                                  child: Container(
-                                    color: Colors.green[900],
-                                    padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
-                                    child: Text('CHANGE STATUS', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white, fontWeight: FontWeight.w600)),
+                                            );
+                                          }
+                                      );
+                                    },
+                                    child: Container(
+                                      color: Colors.green[900],
+                                      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
+                                      child: Text('CHANGE STATUS', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white, fontWeight: FontWeight.w600)),
+                                    ),
                                   ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    FirebaseFirestore.instance.collection('EditItem').doc((_auth.currentUser)!.uid).collection('StoreItem').doc((_auth.currentUser)!.uid).set({
-                                      'uid': doc['uid'],
-                                      'dateTime': doc['dateTime'],
-                                      'orderId': doc['orderId'],
-                                    });
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => OrderManagement()));
-                                  },
-                                  child: Container(
-                                    color: Colors.amber[900],
-                                    padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 8.h),
-                                    child: Text('VIEW DETAILS', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white, fontWeight: FontWeight.w600)),
+                                  GestureDetector(
+                                    onTap: () {
+                                      FirebaseFirestore.instance.collection('EditItem').doc((_auth.currentUser)!.uid).collection('StoreItem').doc((_auth.currentUser)!.uid).set({
+                                        'uid': doc['uid'],
+                                        'dateTime': doc['dateTime'],
+                                        'orderId': doc['orderId'],
+                                      });
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => OrderManagement()));
+                                    },
+                                    child: Container(
+                                      color: Colors.amber[900],
+                                      padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 8.h),
+                                      child: Text('VIEW DETAILS', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white, fontWeight: FontWeight.w600)),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              }
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                }
+            ),
           )
               : Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -830,7 +725,8 @@ class _PastOrderState extends State<PastOrder> {
     return (shopName != null) ? StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection('OrderHistory')
           .where('orderFrom', isEqualTo: shopName)
-          .where('status', whereIn: ['delivered', 'paid', 'partially paid'])
+          .where('status',isEqualTo: 'delivered')
+          .orderBy('dateTime', descending: true)
           .snapshots(),
       builder: (BuildContext context, snapshot) {
         if (!snapshot.hasData) {
@@ -845,272 +741,239 @@ class _PastOrderState extends State<PastOrder> {
             ),
           );
         } else {
-          return snapshot.data!.docs.isNotEmpty ? ListView.builder(
-              shrinkWrap: true,
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot doc = snapshot.data!.docs[index];
-                DateTime formattedDate = DateTime.parse(doc['dateTime']);
-                String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
-                String dateTime2 = DateFormat.jm().format(formattedDate);
-                return Container(
-                  color: Colors.white,
-                  margin: EdgeInsets.only(bottom: 10.h),
-                  child: Column(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(color: Colors.grey)
-                            )
+          return snapshot.data!.docs.isNotEmpty ? SingleChildScrollView(
+            child: ListView.builder(
+                shrinkWrap: true,
+                physics: ClampingScrollPhysics(),
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot doc = snapshot.data!.docs[index];
+                  DateTime formattedDate = DateTime.parse(doc['dateTime']);
+                  String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
+                  String dateTime2 = DateFormat.jm().format(formattedDate);
+                  return Container(
+                    color: Colors.white,
+                    margin: EdgeInsets.only(bottom: 10.h),
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              border: Border(
+                                  bottom: BorderSide(color: Colors.grey)
+                              )
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                          child: Row(
+                            children: [
+                              Icon(FontAwesomeIcons.clock, size: 18.sp, color: Colors.grey),
+                              SizedBox(width: 10.w),
+                              Text(dateTime, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.grey)),
+                            ],
+                          ),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                        child: Row(
-                          children: [
-                            Icon(FontAwesomeIcons.clock, size: 18.sp, color: Colors.grey),
-                            SizedBox(width: 10.w),
-                            Text(dateTime, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.grey)),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text('Order Id:', style: GoogleFonts.inter(fontSize: 13.sp)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text('Order Placed at:', style: GoogleFonts.inter(fontSize: 13.sp)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text('Order Status:', style: GoogleFonts.inter(fontSize: 13.sp)),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(width: 50.w),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text(doc['orderId'], style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.black.withOpacity(0.55), fontWeight: FontWeight.w600)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text(dateTime2, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.black.withOpacity(0.55), fontWeight: FontWeight.w600)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 5.h),
-                                      child: Text(doc['status'], style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.green, fontWeight: FontWeight.w600)),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 10.h),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return Dialog(
-                                            child: Container(
-                                              height: 120.h,
-                                              width: MediaQuery.of(context).size.width,
-                                              child: Stack(
-                                                children: [
-                                                  Column(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    children: [
-                                                      Padding(
-                                                        padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                                        child: Align(
-                                                          alignment: Alignment.topCenter,
-                                                          child: Text('Status',
-                                                            style: GoogleFonts.inter(
-                                                                fontSize: 16.sp,
-                                                                color: Colors.black,
-                                                                fontWeight: FontWeight.w800
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text('Order Id:', style: GoogleFonts.inter(fontSize: 13.sp)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text('Order Placed at:', style: GoogleFonts.inter(fontSize: 13.sp)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text('Order Status:', style: GoogleFonts.inter(fontSize: 13.sp)),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(width: 50.w),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text(doc['orderId'], style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.black.withOpacity(0.55), fontWeight: FontWeight.w600)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text(dateTime2, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.black.withOpacity(0.55), fontWeight: FontWeight.w600)),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Text(doc['status'], style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.green, fontWeight: FontWeight.w600)),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 10.h),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return Dialog(
+                                              child: Container(
+                                                height: 120.h,
+                                                width: MediaQuery.of(context).size.width,
+                                                child: Stack(
+                                                  children: [
+                                                    Column(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                      children: [
+                                                        Padding(
+                                                          padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                                          child: Align(
+                                                            alignment: Alignment.topCenter,
+                                                            child: Text('Status',
+                                                              style: GoogleFonts.inter(
+                                                                  fontSize: 16.sp,
+                                                                  color: Colors.black,
+                                                                  fontWeight: FontWeight.w800
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
-                                                      ),
-                                                      (doc['status'] != 'partially paid') ? Padding(
-                                                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                                                        child: SizedBox(
-                                                          height: 30.h,
-                                                          child: TextFormField(
-                                                            onTap: () {
-                                                              FirebaseFirestore.instance
-                                                                  .collection("Order")
-                                                                  .doc(doc['uid'])
-                                                                  .collection("ConfirmOrder")
-                                                                  .where('dateTime', isEqualTo: doc['dateTime'])
-                                                                  .get()
-                                                                  .then((value) {
-                                                                value.docs.forEach((result) {
-                                                                  FirebaseFirestore.instance
-                                                                      .collection('Order')
-                                                                      .doc(result.data()['uid'])
-                                                                      .collection('ConfirmOrder')
-                                                                      .doc(result.data()['oId'])
-                                                                      .update({
-                                                                    'status': 'partially paid',
-                                                                  });
+                                                        (doc['paymentStatus'] != 'partially paid') ? Padding(
+                                                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                                                          child: SizedBox(
+                                                            height: 30.h,
+                                                            child: TextFormField(
+                                                              onTap: () {
+                                                                FirebaseFirestore.instance.collection('OrderHistory').doc(doc['orderId']).update({
+                                                                  'paymentStatus': 'partially paid'
+                                                                }).then((value) {
+                                                                  Navigator.pop(context);
+                                                                  Fluttertoast.showToast(
+                                                                      msg: 'Update status success!!!',
+                                                                      gravity: ToastGravity.CENTER,
+                                                                      timeInSecForIosWeb: 1,
+                                                                      backgroundColor: Colors.red,
+                                                                      textColor: Colors.white,
+                                                                      fontSize: 13.sp
+                                                                  );
                                                                 });
-                                                              });
-                                                              FirebaseFirestore.instance.collection('OrderHistory').doc(doc['orderId']).update({
-                                                                'status': 'partially paid'
-                                                              }).then((value) {
-                                                                Navigator.pop(context);
-                                                                Fluttertoast.showToast(
-                                                                    msg: 'Update status success!!!',
-                                                                    gravity: ToastGravity.CENTER,
-                                                                    timeInSecForIosWeb: 1,
-                                                                    backgroundColor: Colors.red,
-                                                                    textColor: Colors.white,
-                                                                    fontSize: 13.sp
-                                                                );
-                                                              });
-                                                            },
-                                                            readOnly: true,
-                                                            style: GoogleFonts.inter(fontSize: 13.sp),
-                                                            textAlign: TextAlign.start,
-                                                            decoration: InputDecoration(
-                                                              hintText: 'PARTIALLY PAID',
-                                                              hintStyle: GoogleFonts.inter(fontSize: 13.sp),
-                                                              contentPadding: EdgeInsets.only(left: 10.w),
-                                                              border: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.grey),
-                                                                borderRadius: BorderRadius.circular(2.sp),
-                                                              ),
-                                                              errorBorder: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.red),
-                                                                borderRadius: BorderRadius.circular(0),
+                                                              },
+                                                              readOnly: true,
+                                                              style: GoogleFonts.inter(fontSize: 13.sp),
+                                                              textAlign: TextAlign.start,
+                                                              decoration: InputDecoration(
+                                                                hintText: 'PARTIALLY PAID',
+                                                                hintStyle: GoogleFonts.inter(fontSize: 13.sp),
+                                                                contentPadding: EdgeInsets.only(left: 10.w),
+                                                                border: OutlineInputBorder(
+                                                                  borderSide: BorderSide(color: Colors.grey),
+                                                                  borderRadius: BorderRadius.circular(2.sp),
+                                                                ),
+                                                                errorBorder: OutlineInputBorder(
+                                                                  borderSide: BorderSide(color: Colors.red),
+                                                                  borderRadius: BorderRadius.circular(0),
+                                                                ),
                                                               ),
                                                             ),
                                                           ),
-                                                        ),
-                                                      )
-                                                          : SizedBox(),
-                                                      (doc['status'] != 'paid') ? Padding(
-                                                        padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                                        child: SizedBox(
-                                                          height: 30.h,
-                                                          child: TextFormField(
-                                                            onTap: () {
-                                                              FirebaseFirestore.instance
-                                                                  .collection("Order")
-                                                                  .doc(doc['uid'])
-                                                                  .collection("ConfirmOrder")
-                                                                  .where('dateTime', isEqualTo: doc['dateTime'])
-                                                                  .get()
-                                                                  .then((value) {
-                                                                value.docs.forEach((result) {
-                                                                  FirebaseFirestore.instance
-                                                                      .collection('Order')
-                                                                      .doc(result.data()['uid'])
-                                                                      .collection('ConfirmOrder')
-                                                                      .doc(result.data()['oId'])
-                                                                      .update({
-                                                                    'status': 'paid',
-                                                                  });
+                                                        )
+                                                            : SizedBox(),
+                                                        (doc['paymentStatus'] != 'paid') ? Padding(
+                                                          padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                                          child: SizedBox(
+                                                            height: 30.h,
+                                                            child: TextFormField(
+                                                              onTap: () {
+                                                                FirebaseFirestore.instance.collection('OrderHistory').doc(doc['orderId']).update({
+                                                                  'paymentStatus': 'paid'
+                                                                }).then((value) {
+                                                                  Navigator.pop(context);
+                                                                  Fluttertoast.showToast(
+                                                                      msg: 'Update status success!!!',
+                                                                      gravity: ToastGravity.CENTER,
+                                                                      timeInSecForIosWeb: 1,
+                                                                      backgroundColor: Colors.red,
+                                                                      textColor: Colors.white,
+                                                                      fontSize: 13.sp
+                                                                  );
                                                                 });
-                                                              });
-                                                              FirebaseFirestore.instance.collection('OrderHistory').doc(doc['orderId']).update({
-                                                                'status': 'paid'
-                                                              }).then((value) {
-                                                                Navigator.pop(context);
-                                                                Fluttertoast.showToast(
-                                                                    msg: 'Update status success!!!',
-                                                                    gravity: ToastGravity.CENTER,
-                                                                    timeInSecForIosWeb: 1,
-                                                                    backgroundColor: Colors.red,
-                                                                    textColor: Colors.white,
-                                                                    fontSize: 13.sp
-                                                                );
-                                                              });
-                                                            },
-                                                            readOnly: true,
-                                                            style: GoogleFonts.inter(fontSize: 13.sp),
-                                                            textAlign: TextAlign.start,
-                                                            decoration: InputDecoration(
-                                                              hintText: 'PAID',
-                                                              hintStyle: GoogleFonts.inter(fontSize: 13.sp),
-                                                              contentPadding: EdgeInsets.only(left: 10.w),
-                                                              border: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.grey),
-                                                                borderRadius: BorderRadius.circular(2.sp),
-                                                              ),
-                                                              errorBorder: OutlineInputBorder(
-                                                                borderSide: BorderSide(color: Colors.red),
-                                                                borderRadius: BorderRadius.circular(0),
+                                                              },
+                                                              readOnly: true,
+                                                              style: GoogleFonts.inter(fontSize: 13.sp),
+                                                              textAlign: TextAlign.start,
+                                                              decoration: InputDecoration(
+                                                                hintText: 'PAID',
+                                                                hintStyle: GoogleFonts.inter(fontSize: 13.sp),
+                                                                contentPadding: EdgeInsets.only(left: 10.w),
+                                                                border: OutlineInputBorder(
+                                                                  borderSide: BorderSide(color: Colors.grey),
+                                                                  borderRadius: BorderRadius.circular(2.sp),
+                                                                ),
+                                                                errorBorder: OutlineInputBorder(
+                                                                  borderSide: BorderSide(color: Colors.red),
+                                                                  borderRadius: BorderRadius.circular(0),
+                                                                ),
                                                               ),
                                                             ),
                                                           ),
-                                                        ),
-                                                      )
-                                                          : SizedBox(),
-                                                    ],
-                                                  ),
-                                                  Positioned(
-                                                    right: 0,
-                                                    child: IconButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(context);
-                                                      },
-                                                      icon: Icon(Icons.clear, size: 25.sp,),
+                                                        )
+                                                            : SizedBox(),
+                                                      ],
                                                     ),
-                                                  ),
-                                                ],
+                                                    Positioned(
+                                                      right: 0,
+                                                      child: IconButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(context);
+                                                        },
+                                                        icon: Icon(Icons.clear, size: 25.sp,),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                          );
-                                        }
-                                    );
-                                  },
-                                  child: Container(
-                                    color: Colors.green[900],
-                                    padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
-                                    child: Text('CHANGE STATUS', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white, fontWeight: FontWeight.w600)),
+                                            );
+                                          }
+                                      );
+                                    },
+                                    child: Container(
+                                      color: Colors.green[900],
+                                      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
+                                      child: Text('CHANGE STATUS', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white, fontWeight: FontWeight.w600)),
+                                    ),
                                   ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    FirebaseFirestore.instance.collection('EditItem').doc((_auth.currentUser)!.uid).collection('StoreItem').doc((_auth.currentUser)!.uid).set({
-                                      'uid': doc['uid'],
-                                      'dateTime': doc['dateTime'],
-                                      'orderId': doc['orderId'],
-                                    });
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => OrderManagement()));
-                                  },
-                                  child: Container(
-                                    color: Colors.amber[900],
-                                    padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 8.h),
-                                    child: Text('VIEW DETAILS', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white, fontWeight: FontWeight.w600)),
+                                  GestureDetector(
+                                    onTap: () {
+                                      FirebaseFirestore.instance.collection('EditItem').doc((_auth.currentUser)!.uid).collection('StoreItem').doc((_auth.currentUser)!.uid).set({
+                                        'uid': doc['uid'],
+                                        'dateTime': doc['dateTime'],
+                                        'orderId': doc['orderId'],
+                                      });
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => OrderManagement()));
+                                    },
+                                    child: Container(
+                                      color: Colors.amber[900],
+                                      padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 8.h),
+                                      child: Text('VIEW DETAILS', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white, fontWeight: FontWeight.w600)),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              }
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                }
+            ),
           )
               : Column(
             mainAxisAlignment: MainAxisAlignment.center,

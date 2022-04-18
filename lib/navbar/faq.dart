@@ -47,12 +47,12 @@ class _FAQState extends State<FAQ> {
             }
             return Column(
               children: [
-                Container(
-                  height: 70.h,
+                SizedBox(
+                  height: 65.h,
                   child: Center(
                       child: Image.asset(
-                        'assets/logo.jpg',
-                        width: size.width,
+                        'assets/logo2.png',
+                        width: 130.w,
                       )
                   ),
                 ),

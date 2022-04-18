@@ -31,7 +31,7 @@ class _RatingState extends State<Rating> {
         .collection("View")
         .doc((_auth.currentUser)!.uid)
         .get().then((value){
-      FirebaseFirestore.instance.collection("Rating5")
+      FirebaseFirestore.instance.collection("OrderHistory")
           .where('uid', isEqualTo: (_auth.currentUser)!.uid)
           .where("dateTime",isEqualTo: value.data()!['dateTime'])
           .get()
@@ -173,7 +173,7 @@ class _RatingState extends State<Rating> {
                                       itemBuilder: (context,index){
                                         var doc1 = snapshot.data!.docs[index];
                                         return FutureBuilder<QuerySnapshot>(
-                                            future: FirebaseFirestore.instance.collection("Rating5")
+                                            future: FirebaseFirestore.instance.collection("OrderHistory")
                                                 .where('uid', isEqualTo: (_auth.currentUser)!.uid)
                                                 .where("dateTime",isEqualTo: doc1["dateTime"])
                                                 .get(),
@@ -210,7 +210,7 @@ class _RatingState extends State<Rating> {
                                                                 setState(() {
                                                                   this.rating = rating;
                                                                 });
-                                                                FirebaseFirestore.instance.collection('Rating5').doc(doc['orderId']).update({
+                                                                FirebaseFirestore.instance.collection('OrderHistory').doc(doc['orderId']).update({
                                                                   'rating': rating,
                                                                 });
                                                               }
@@ -309,7 +309,7 @@ class _RatingState extends State<Rating> {
                               margin: EdgeInsets.symmetric(horizontal: 120.w),
                               child: FlatButton.icon(
                                 onPressed: () async{
-                                  FirebaseFirestore.instance.collection('Rating5').doc(userDocument['orderId']).update({
+                                  FirebaseFirestore.instance.collection('OrderHistory').doc(userDocument['orderId']).update({
                                     'comment': _comment.text,
                                     'isRated': true,
                                   });

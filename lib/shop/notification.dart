@@ -65,6 +65,7 @@ class _NotificationsState extends State<Notifications> {
             } else {
               return snapshot.data!.docs.isNotEmpty ? ListView.builder(
                   shrinkWrap: true,
+                  physics: ClampingScrollPhysics(),
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, index){
                     var doc = snapshot.data!.docs[index];
@@ -92,9 +93,12 @@ class _NotificationsState extends State<Notifications> {
                                     child: Icon(FontAwesomeIcons.bell, size: 20.sp, color: Colors.black.withOpacity(0.2))
                                 ),
                                 SizedBox(width: 10.w),
-                                Text(
-                                  'A new order request ' + "'${doc['orderId']}'" +  ' has arrived.',
-                                  style: GoogleFonts.inter(fontSize: 12.sp, fontWeight: FontWeight.w600),
+                                Expanded(
+                                  child: Text(
+                                    (doc['status'] != 'cancelled') ? 'A new order request ' + "'${doc['orderId']}'" +  ' has arrived.'
+                                    : 'Your order' + "'${doc['orderId']}'" +  ' has been cancelled.',
+                                    style: GoogleFonts.inter(fontSize: 12.sp, fontWeight: FontWeight.w600),
+                                  ),
                                 )
                               ],
                             ),
@@ -111,13 +115,15 @@ class _NotificationsState extends State<Notifications> {
                     );
                   }
               )
-                  : Column(
+                  : Center(
+                    child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(FontAwesomeIcons.folder, size: 80.sp, color: Colors.amber[900]),
-                  Text('No Data Found', style: GoogleFonts.inter(fontSize: 20.sp, color: Colors.amber[900])),
+                    Icon(FontAwesomeIcons.folder, size: 80.sp, color: Colors.amber[900]),
+                    Text('No Data Found', style: GoogleFonts.inter(fontSize: 20.sp, color: Colors.amber[900])),
                 ],
-              );
+              ),
+                  );
             }
           }
       )

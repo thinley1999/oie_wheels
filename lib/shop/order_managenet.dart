@@ -57,11 +57,11 @@ class _OrderManagementState extends State<OrderManagement> {
             default:return Column(
               children: [
                 SizedBox(
-                  height: 70.h,
+                  height: 65.h,
                   child: Center(
                       child: Image.asset(
-                        'assets/logo.jpg',
-                        width: 80.w,
+                        'assets/logo2.png',
+                        width: 130.w,
                       )
                   ),
                 ),
@@ -189,6 +189,10 @@ class _OrderManagementState extends State<OrderManagement> {
                                                                   padding: EdgeInsets.only(left: 10.w, top: 5.h),
                                                                   child: Text('Order Status:',style: GoogleFonts.inter(fontSize: 11.sp, color:Colors.grey, fontWeight: FontWeight.w800)),
                                                                 ),
+                                                                Padding(
+                                                                  padding: EdgeInsets.only(left: 10.w, top: 5.h),
+                                                                  child: Text('Payment Status:',style: GoogleFonts.inter(fontSize: 11.sp, color:Colors.grey, fontWeight: FontWeight.w800)),
+                                                                ),
                                                               ],
                                                             ),
                                                             SizedBox(width: 20.w),
@@ -222,6 +226,10 @@ class _OrderManagementState extends State<OrderManagement> {
                                                                 Padding(
                                                                   padding: EdgeInsets.only(left: 10.w, top: 5.h),
                                                                   child: Text(doc['status'],style: GoogleFonts.inter(fontSize: 11.sp, color: Colors.green, fontWeight: FontWeight.w800)),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets.only(left: 10.w, top: 5.h),
+                                                                  child: Text(doc['paymentStatus'],style: GoogleFonts.inter(fontSize: 11.sp, color: Colors.green, fontWeight: FontWeight.w800)),
                                                                 ),
                                                               ],
                                                             ),
@@ -404,7 +412,7 @@ class _OrderManagementState extends State<OrderManagement> {
                                                                       ),
                                                                       Padding(
                                                                         padding: EdgeInsets.only(top: 5.h),
-                                                                        child:Text(doc['discountOnDC'] + '.0',style: GoogleFonts.inter(fontSize: 10.sp, fontWeight: FontWeight.w600)),
+                                                                        child:Text(doc['discountOnDC'],style: GoogleFonts.inter(fontSize: 10.sp, fontWeight: FontWeight.w600)),
                                                                       ),
                                                                       Padding(
                                                                         padding: EdgeInsets.only(top: 5.h),
@@ -438,7 +446,7 @@ class _OrderManagementState extends State<OrderManagement> {
                                                                   children: [
                                                                     Text('Total Amount', style: GoogleFonts.inter(fontSize: 15.sp,)),
                                                                     SizedBox(width: 30.w,),
-                                                                    Text('BTN ' + doc['totalAmount'].toString(), style: GoogleFonts.inter(fontSize: 15.sp, fontWeight: FontWeight.w700))
+                                                                    Text(doc['from'] == 'restaurant'? 'BTN ' + doc['totalAmount'].toString() + '0' : 'BTN ' + doc['totalAmount'].toString() + '.00', style: GoogleFonts.inter(fontSize: 15.sp, fontWeight: FontWeight.w700))
                                                                   ],
                                                                 ),
                                                               ),

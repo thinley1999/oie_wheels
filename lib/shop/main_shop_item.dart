@@ -19,6 +19,7 @@ class _MainShopItemState extends State<MainShopItem> {
     return (_auth.currentUser)!.uid;
   }
 
+
   var dataList;
   var queryResultSet = [];
   var tempSearchStore = [];
@@ -27,7 +28,7 @@ class _MainShopItemState extends State<MainShopItem> {
     if (value.length == 0) {
       setState(() {
         dataList = FirebaseFirestore.instance.collection('StoreItem2').where('uid', isEqualTo: (_auth.currentUser)!.uid)
-            .snapshots();
+            .orderBy('dateTime', descending: true).snapshots();
         queryResultSet = [];
         tempSearchStore = [];
       });
@@ -57,7 +58,7 @@ class _MainShopItemState extends State<MainShopItem> {
   void initState() {
     super.initState();
     dataList = FirebaseFirestore.instance.collection('StoreItem2').where('uid', isEqualTo: (_auth.currentUser)!.uid)
-        .snapshots();
+        .orderBy('dateTime', descending: true).snapshots();
   }
 
   var entries = 10;
@@ -75,41 +76,44 @@ class _MainShopItemState extends State<MainShopItem> {
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Container(
-            padding: EdgeInsets.only(bottom: 10.h),
-            child: TextFormField(
-              style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white),
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.only(top: 15.h),
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                ),
-                enabledBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.white,
-                  ),
-                ),
-                prefixIcon: Padding(
-                  padding: EdgeInsets.only(top: 10.h),
-                  child: Icon(
-                    Icons.search,
-                    color: Colors.white,
-                    size: 20.sp,
-                  ),
-                ),
-                hintText: "Search Item",
-                hintStyle: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(width: 1.sp, color: Colors.white),
               ),
-              onChanged: (val) {
-                initiateSearch(val);
-                setState(() {
-                  dataList = FirebaseFirestore.instance
-                      .collection('StoreItem2')
-                      .where('uid', isEqualTo: (_auth.currentUser)!.uid)
-                      .where('searchKey',
-                      isEqualTo: val.substring(0, 1).toUpperCase())
-                      .snapshots();
-                });
-              },
+            ),
+            margin: EdgeInsets.only(bottom: 2.h),
+            child: Row(
+              children: [
+                Icon(
+                  FontAwesomeIcons.search,
+                  color: Colors.white,
+                  size: 18.sp,
+                ),
+                SizedBox(width: 10.w,),
+                Expanded(
+                  child: TextFormField(
+                    style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.white),
+                    cursorColor: Colors.white,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      hintText: "Search Item",
+                      hintStyle: GoogleFonts.inter(fontSize: 14.sp, color: Colors.white),
+                    ),
+                    onChanged: (val) {
+                      initiateSearch(val);
+                      setState(() {
+                        dataList = FirebaseFirestore.instance
+                            .collection('StoreItem2')
+                            .where('uid', isEqualTo: (_auth.currentUser)!.uid)
+                            .where('searchKey',
+                            isEqualTo: val.substring(0, 1).toUpperCase())
+                            .snapshots();
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
           centerTitle: true,
@@ -266,10 +270,12 @@ class ItemDataSource extends DataTableSource {
                       .collection('StoreItem1').doc((_auth.currentUser)!.uid).set({
                     'uid': items[index].uid,
                     'refId': items[index].refId,
+                    'shopName': items[index].shopName,
                     'shopItemName': items[index].shopItemName,
                     'shopItemType': items[index].shopItemType,
                     'shopItem': items[index].shopItem,
                     'price': items[index].price,
+                    'description': items[index].description,
                     'discount': items[index].discount,
                     'startDate': items[index].startDate,
                     'endDate': items[index].endDate,
@@ -599,10 +605,12 @@ class ItemDataSource extends DataTableSource {
 }
 
 class ShopItem{
+  final String shopName;
   final String shopItemName;
   final String shopItemType;
   final String shopItem;
   final String price;
+  final String description;
   final String discount;
   final String startDate;
   final String endDate;
@@ -615,30 +623,27 @@ class ShopItem{
   DocumentReference ? reference;
 
   ShopItem.fromMap(Map<dynamic, dynamic> map, {this.reference})
-      : assert(map['shopItemName'] != null),
+      : assert(map['shopName'] != null),
+        assert(map['shopItemName'] != null),
         assert(map['shopItemType'] != null),
         assert(map['shopItem'] != null),
         assert(map['price'] != null),
+        assert(map['description'] != null),
         assert(map['discount'] != null),
         assert(map['startDate'] != null),
         assert(map['endDate'] != null),
         assert(map['discount2'] != null),
         assert(map['startDate2'] != null),
         assert(map['endDate2'] != null),
-        assert(map['size'][0]['quantity'] != null),
-        assert(map['size'][1]['quantity'] != null),
-        assert(map['size'][2]['quantity'] != null),
-        assert(map['size'][3]['quantity'] != null),
-        assert(map['size'][4]['quantity'] != null),
-        assert(map['size'][5]['quantity'] != null),
-        assert(map['size'][6]['quantity'] != null),
         assert(map['refId'] != null),
         assert(map['uid'] != null),
         assert(map['status'] != null),
+        shopName = map['shopName'],
         shopItemName = map['shopItemName'],
         shopItemType = map['shopItemType'],
         shopItem = map['shopItem'],
         price = map['price'],
+        description = map['description'],
         discount = map['discount'],
         startDate = map['startDate'],
         endDate = map['endDate'],
@@ -654,7 +659,8 @@ class ShopItem{
       : this.fromMap(snapshot.data() as Map<dynamic, dynamic>, reference: snapshot.reference);
 
   @override
-  String toString() => "Users<$shopItemName:$shopItemType:$shopItem:$price:"
+  String toString() => "Users<$shopName:$shopItemName:$shopItemType:$shopItem:$price:$description:"
       "$discount:$startDate:$endDate:$discount2:$startDate2:$endDate2:$refId:$uid:$status>";
 }
+
 

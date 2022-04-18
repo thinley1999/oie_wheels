@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:oie_wheels/authenticate/login.dart';
 import 'package:oie_wheels/authenticate/methods.dart';
 import 'package:validators/validators.dart';
 
@@ -60,7 +61,7 @@ class _CreateAccountState extends State<CreateAccount> {
       });
 
       if(authCredential?.user != null){
-        Navigator.of(context).pushReplacementNamed('/login');
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => Login()), (Route<dynamic> route) => false);
         FirebaseAuth.instance.currentUser?.delete();
         await FirebaseAuth.instance.signOut();
       }
@@ -91,9 +92,7 @@ class _CreateAccountState extends State<CreateAccount> {
         ),
         FlatButton(
           onPressed: () async {
-            PhoneAuthCredential phoneAuthCredential =
-            PhoneAuthProvider.credential(
-                verificationId: verificationId, smsCode: otpController.text);
+            PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: otpController.text);
 
             signInWithPhoneAuthCredential(phoneAuthCredential);
           },

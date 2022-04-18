@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:oie_wheels/authenticate/login.dart';
 import 'package:oie_wheels/authenticate/methods.dart';
 import 'package:oie_wheels/driver/driver_home.dart';
@@ -58,7 +60,27 @@ class _AuthenticateState extends State<Authenticate> {
   Widget build(BuildContext context) {
     if (_auth.currentUser != null) {
       verifyUser();
-      return Container(color: Color(0xFFE8EAF6));
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.location_on, size: 30.sp, color: Colors.blue),
+              Text('Use your location', style: GoogleFonts.inter(fontSize: 25.sp, color: Colors.black)),
+              SizedBox(height: 30.h,),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25.sp),
+                child: Text('OieWheels collects location data to enable delivery address even when the app is closed or not in use.', style: GoogleFonts.inter(fontSize: 13.sp)),
+              ),
+              SizedBox(height: 30.h,),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 25.sp),
+                child: Image.asset('assets/location.jpg'),
+              )
+            ],
+          ),
+        ),
+      );
     } else {
       return Login();
     }

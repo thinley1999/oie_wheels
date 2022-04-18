@@ -40,7 +40,6 @@ class _NotificationsState extends State<Notifications> {
           stream: FirebaseFirestore.instance
               .collection("OrderHistory")
               .where('uid', isEqualTo: (_auth.currentUser)!.uid)
-              .where('status', whereIn: ['unassigned orders','order confirm','being prepared', 'on the way', 'delivered'])
               .orderBy('dateTime', descending: true)
               .snapshots(),
           builder: (BuildContext context, snapshot) {

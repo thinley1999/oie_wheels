@@ -32,7 +32,7 @@ class _OrderDetails2State extends State<OrderDetails2> {
                 Navigator.pop(context);
               },
             ),
-            title: Text('Order Details2', style: GoogleFonts.inter(
+            title: Text('Order Details', style: GoogleFonts.inter(
                 fontSize: 15.sp, fontWeight: FontWeight.bold)),
             centerTitle: true,
             bottomOpacity: 0.0,
@@ -60,8 +60,8 @@ class _OrderDetails2State extends State<OrderDetails2> {
                   height: 65.h,
                   child: Center(
                       child: Image.asset(
-                        'assets/logo1.png',
-                        width: 110.w,
+                        'assets/logo2.png',
+                        width: 130.w,
                       )
                   ),
                 ),
@@ -196,26 +196,28 @@ class _OrderDetails2State extends State<OrderDetails2> {
                                                             ],
                                                           ),
                                                           SizedBox(width: 20.w),
-                                                          Column(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                            children: [
-                                                              Padding(
-                                                                padding: EdgeInsets.only(left: 10.w, top: 5.h),
-                                                                child: Text(doc['orderId'],style: GoogleFonts.inter(fontSize: 11.sp, fontWeight: FontWeight.w800)),
-                                                              ),
-                                                              Padding(
-                                                                padding: EdgeInsets.only(left: 10.w, top: 5.h),
-                                                                child: Text(doc['orderBy'],style: GoogleFonts.inter(fontSize: 11.sp, fontWeight: FontWeight.w800)),
-                                                              ),
-                                                              Padding(
-                                                                padding: EdgeInsets.only(left: 10.w, top: 5.h),
-                                                                child: Text(doc['deliveryAddress'],style: GoogleFonts.inter(fontSize: 11.sp, fontWeight: FontWeight.w800)),
-                                                              ),
-                                                              Padding(
-                                                                padding: EdgeInsets.only(left: 10.w, top: 5.h),
-                                                                child: Text('+975-' + doc['phone'],style: GoogleFonts.inter(fontSize: 11.sp, fontWeight: FontWeight.w800)),
-                                                              ),
-                                                            ],
+                                                          Expanded(
+                                                            child: Column(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              children: [
+                                                                Padding(
+                                                                  padding: EdgeInsets.only(left: 10.w, top: 5.h),
+                                                                  child: Text(doc['orderId'],style: GoogleFonts.inter(fontSize: 11.sp, fontWeight: FontWeight.w800)),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets.only(left: 10.w, top: 5.h),
+                                                                  child: Text(doc['orderBy'],style: GoogleFonts.inter(fontSize: 11.sp, fontWeight: FontWeight.w800)),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets.only(left: 10.w, top: 5.h),
+                                                                  child: Text(doc['deliveryAddress'],style: GoogleFonts.inter(fontSize: 11.sp, fontWeight: FontWeight.w800)),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets.only(left: 10.w, top: 5.h),
+                                                                  child: Text('+975-' + doc['phone'],style: GoogleFonts.inter(fontSize: 11.sp, fontWeight: FontWeight.w800)),
+                                                                ),
+                                                              ],
+                                                            ),
                                                           ),
                                                         ],
                                                       ),
@@ -396,7 +398,7 @@ class _OrderDetails2State extends State<OrderDetails2> {
                                                                     ),
                                                                     Padding(
                                                                       padding: EdgeInsets.only(top: 5.h),
-                                                                      child:Text(doc['discountOnDC'] + '.0',style: GoogleFonts.inter(fontSize: 10.sp, fontWeight: FontWeight.w600)),
+                                                                      child:Text(doc['discountOnDC'],style: GoogleFonts.inter(fontSize: 10.sp, fontWeight: FontWeight.w600)),
                                                                     ),
                                                                     Padding(
                                                                       padding: EdgeInsets.only(top: 5.h),
@@ -430,7 +432,7 @@ class _OrderDetails2State extends State<OrderDetails2> {
                                                                 children: [
                                                                   Text('Total Amount', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.amber[900])),
                                                                   SizedBox(width: 30.w,),
-                                                                  Text('BTN ' + doc['totalAmount'].toString(), style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.amber[900], fontWeight: FontWeight.w700))
+                                                                  Text(doc['from'] == 'restaurant'?'BTN ' + doc['totalAmount'].toString() : 'BTN ' + doc['totalAmount'].toString() + '.0', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.amber[900], fontWeight: FontWeight.w700))
                                                                 ],
                                                               ),
                                                             ),

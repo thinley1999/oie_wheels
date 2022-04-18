@@ -6,7 +6,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:oie_wheels/authenticate/methods.dart';
 import 'package:oie_wheels/content/order_history.dart';
-import 'package:oie_wheels/demo.dart';
+import 'package:store_redirect/store_redirect.dart';
 import 'package:oie_wheels/navbar/about_us.dart';
 import 'package:oie_wheels/navbar/edit_profile.dart';
 import 'package:oie_wheels/navbar/faq.dart';
@@ -179,7 +179,7 @@ class _MainDrawerState extends State<MainDrawer> {
                         style: GoogleFonts.inter(fontSize: 13.sp, color: Color(0xFF757575), fontWeight: FontWeight.bold),
                       ),
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => Demo()));
+                        StoreRedirect.redirect(androidAppId: 'com.druksmart.oie_wheels');
                       },
                     ),
                   ),

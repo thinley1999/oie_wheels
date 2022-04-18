@@ -53,7 +53,7 @@ class _CustomerFeedbackState extends State<CustomerFeedback> {
                   tabs: [
                     Tab(child: Text('All', style: GoogleFonts.inter(fontSize: 13.sp)),),
                     Tab(child: Text('Below 5 star', style: GoogleFonts.inter(fontSize: 13.sp)),),
-                    Tab(child: Text('Equal to 5 star', style: GoogleFonts.inter(fontSize: 13.sp), textAlign: TextAlign.center)),
+                    Tab(child: Text('5 star', style: GoogleFonts.inter(fontSize: 13.sp), textAlign: TextAlign.center)),
                   ]
               ),
             ),
@@ -103,7 +103,7 @@ class _AllState extends State<All> {
   @override
   Widget build(BuildContext context) {
     return (shopName != null) ? StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('Rating5')
+      stream: FirebaseFirestore.instance.collection('OrderHistory')
           .where('orderFrom', isEqualTo: shopName)
           .where('isRated', isEqualTo: true)
           .snapshots(),
@@ -120,70 +120,73 @@ class _AllState extends State<All> {
             ),
           );
         } else {
-          return snapshot.data!.docs.isNotEmpty ? ListView.builder(
-              shrinkWrap: true,
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot doc = snapshot.data!.docs[index];
-                DateTime formattedDate = DateTime.parse(doc['dateTime']);
-                String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
-                return Container(
-                  color: Colors.white,
-                  margin: EdgeInsets.only(bottom: 10.h),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(color: Colors.grey)
-                            )
+          return snapshot.data!.docs.isNotEmpty ? SingleChildScrollView(
+            child: ListView.builder(
+                shrinkWrap: true,
+                physics: ClampingScrollPhysics(),
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot doc = snapshot.data!.docs[index];
+                  DateTime formattedDate = DateTime.parse(doc['dateTime']);
+                  String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
+                  return Container(
+                    color: Colors.white,
+                    margin: EdgeInsets.only(bottom: 10.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              border: Border(
+                                  bottom: BorderSide(color: Colors.grey)
+                              )
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                          child: Row(
+                            children: [
+                              Icon(FontAwesomeIcons.clock, size: 18.sp, color: Colors.grey),
+                              SizedBox(width: 10.w),
+                              Text(dateTime, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.grey)),
+                            ],
+                          ),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                        child: Row(
-                          children: [
-                            Icon(FontAwesomeIcons.clock, size: 18.sp, color: Colors.grey),
-                            SizedBox(width: 10.w),
-                            Text(dateTime, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.grey)),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(top: 5.h),
-                              child: Row(
-                                children: [
-                                  Text('Rating:', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.indigo[900], fontWeight: FontWeight.w600)),
-                                  RatingBar.builder(
-                                      itemSize: 20.sp,
-                                      unratedColor: Colors.indigo[900],
-                                      initialRating: doc['rating'],
-                                      itemBuilder: (context, _) => Icon(Icons.star, color: Colors.amber[700]),
-                                      onRatingUpdate: (rating) {
-                                      }
-                                  )
-                                ],
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(top: 5.h),
+                                child: Row(
+                                  children: [
+                                    Text('Rating:', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.indigo[900], fontWeight: FontWeight.w600)),
+                                    RatingBar.builder(
+                                        itemSize: 20.sp,
+                                        unratedColor: Colors.indigo[900],
+                                        initialRating: doc['rating'],
+                                        itemBuilder: (context, _) => Icon(Icons.star, color: Colors.amber[700]),
+                                        onRatingUpdate: (rating) {
+                                        }
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 5.h),
-                              child: Text('CustomerName: ' + doc['orderBy'], style: GoogleFonts.inter(fontSize: 13.sp)),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 5.h),
-                              child: Text((doc['comment'] != '') ? doc['comment'] : '(No Review)', style: GoogleFonts.inter(fontSize: 13.sp)),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              }
+                              Padding(
+                                padding: EdgeInsets.only(top: 5.h),
+                                child: Text('CustomerName: ' + doc['orderBy'], style: GoogleFonts.inter(fontSize: 13.sp)),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 5.h),
+                                child: Text((doc['comment'] != '') ? doc['comment'] : '(No Review)', style: GoogleFonts.inter(fontSize: 13.sp)),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                }
+            ),
           )
               : Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -234,7 +237,7 @@ class _BelowState extends State<Below> {
   @override
   Widget build(BuildContext context) {
     return (shopName != null) ? StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('Rating5')
+      stream: FirebaseFirestore.instance.collection('OrderHistory')
           .where('orderFrom', isEqualTo: shopName)
           .where('isRated', isEqualTo: true)
           .where('rating', isLessThan: 5)
@@ -252,70 +255,73 @@ class _BelowState extends State<Below> {
             ),
           );
         } else {
-          return snapshot.data!.docs.isNotEmpty ? ListView.builder(
-              shrinkWrap: true,
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot doc = snapshot.data!.docs[index];
-                DateTime formattedDate = DateTime.parse(doc['dateTime']);
-                String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
-                return Container(
-                  color: Colors.white,
-                  margin: EdgeInsets.only(bottom: 10.h),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(color: Colors.grey)
-                            )
+          return snapshot.data!.docs.isNotEmpty ? SingleChildScrollView(
+            child: ListView.builder(
+                shrinkWrap: true,
+                physics: ClampingScrollPhysics(),
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot doc = snapshot.data!.docs[index];
+                  DateTime formattedDate = DateTime.parse(doc['dateTime']);
+                  String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
+                  return Container(
+                    color: Colors.white,
+                    margin: EdgeInsets.only(bottom: 10.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              border: Border(
+                                  bottom: BorderSide(color: Colors.grey)
+                              )
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                          child: Row(
+                            children: [
+                              Icon(FontAwesomeIcons.clock, size: 18.sp, color: Colors.grey),
+                              SizedBox(width: 10.w),
+                              Text(dateTime, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.grey)),
+                            ],
+                          ),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                        child: Row(
-                          children: [
-                            Icon(FontAwesomeIcons.clock, size: 18.sp, color: Colors.grey),
-                            SizedBox(width: 10.w),
-                            Text(dateTime, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.grey)),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(top: 5.h),
-                              child: Row(
-                                children: [
-                                  Text('Rating:', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.indigo[900], fontWeight: FontWeight.w600)),
-                                  RatingBar.builder(
-                                      itemSize: 20.sp,
-                                      unratedColor: Colors.indigo[900],
-                                      initialRating: doc['rating'],
-                                      itemBuilder: (context, _) => Icon(Icons.star, color: Colors.amber[700]),
-                                      onRatingUpdate: (rating) {
-                                      }
-                                  )
-                                ],
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(top: 5.h),
+                                child: Row(
+                                  children: [
+                                    Text('Rating:', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.indigo[900], fontWeight: FontWeight.w600)),
+                                    RatingBar.builder(
+                                        itemSize: 20.sp,
+                                        unratedColor: Colors.indigo[900],
+                                        initialRating: doc['rating'],
+                                        itemBuilder: (context, _) => Icon(Icons.star, color: Colors.amber[700]),
+                                        onRatingUpdate: (rating) {
+                                        }
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 5.h),
-                              child: Text('CustomerName: ' + doc['orderBy'], style: GoogleFonts.inter(fontSize: 13.sp)),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 5.h),
-                              child: Text((doc['comment'] != '') ? doc['comment'] : '(No Review)', style: GoogleFonts.inter(fontSize: 13.sp)),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              }
+                              Padding(
+                                padding: EdgeInsets.only(top: 5.h),
+                                child: Text('CustomerName: ' + doc['orderBy'], style: GoogleFonts.inter(fontSize: 13.sp)),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 5.h),
+                                child: Text((doc['comment'] != '') ? doc['comment'] : '(No Review)', style: GoogleFonts.inter(fontSize: 13.sp)),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                }
+            ),
           )
               : Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -366,7 +372,7 @@ class _EqualState extends State<Equal> {
   @override
   Widget build(BuildContext context) {
     return (shopName != null) ? StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('Rating5')
+      stream: FirebaseFirestore.instance.collection('OrderHistory')
           .where('orderFrom', isEqualTo: shopName)
           .where('isRated', isEqualTo: true)
           .where('rating', isEqualTo: 5)
@@ -384,70 +390,73 @@ class _EqualState extends State<Equal> {
             ),
           );
         } else {
-          return snapshot.data!.docs.isNotEmpty ? ListView.builder(
-              shrinkWrap: true,
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                DocumentSnapshot doc = snapshot.data!.docs[index];
-                DateTime formattedDate = DateTime.parse(doc['dateTime']);
-                String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
-                return Container(
-                  color: Colors.white,
-                  margin: EdgeInsets.only(bottom: 10.h),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                            border: Border(
-                                bottom: BorderSide(color: Colors.grey)
-                            )
+          return snapshot.data!.docs.isNotEmpty ? SingleChildScrollView(
+            child: ListView.builder(
+                shrinkWrap: true,
+                physics: ClampingScrollPhysics(),
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot doc = snapshot.data!.docs[index];
+                  DateTime formattedDate = DateTime.parse(doc['dateTime']);
+                  String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
+                  return Container(
+                    color: Colors.white,
+                    margin: EdgeInsets.only(bottom: 10.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              border: Border(
+                                  bottom: BorderSide(color: Colors.grey)
+                              )
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                          child: Row(
+                            children: [
+                              Icon(FontAwesomeIcons.clock, size: 18.sp, color: Colors.grey),
+                              SizedBox(width: 10.w),
+                              Text(dateTime, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.grey)),
+                            ],
+                          ),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                        child: Row(
-                          children: [
-                            Icon(FontAwesomeIcons.clock, size: 18.sp, color: Colors.grey),
-                            SizedBox(width: 10.w),
-                            Text(dateTime, style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.grey)),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(top: 5.h),
-                              child: Row(
-                                children: [
-                                  Text('Rating:', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.indigo[900], fontWeight: FontWeight.w600)),
-                                  RatingBar.builder(
-                                      itemSize: 20.sp,
-                                      unratedColor: Colors.indigo[900],
-                                      initialRating: doc['rating'],
-                                      itemBuilder: (context, _) => Icon(Icons.star, color: Colors.amber[700]),
-                                      onRatingUpdate: (rating) {
-                                      }
-                                  )
-                                ],
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(top: 5.h),
+                                child: Row(
+                                  children: [
+                                    Text('Rating:', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.indigo[900], fontWeight: FontWeight.w600)),
+                                    RatingBar.builder(
+                                        itemSize: 20.sp,
+                                        unratedColor: Colors.indigo[900],
+                                        initialRating: doc['rating'],
+                                        itemBuilder: (context, _) => Icon(Icons.star, color: Colors.amber[700]),
+                                        onRatingUpdate: (rating) {
+                                        }
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 5.h),
-                              child: Text('CustomerName: ' + doc['orderBy'], style: GoogleFonts.inter(fontSize: 13.sp)),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 5.h),
-                              child: Text((doc['comment'] != '') ? doc['comment'] : '(No Review)', style: GoogleFonts.inter(fontSize: 13.sp)),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              }
+                              Padding(
+                                padding: EdgeInsets.only(top: 5.h),
+                                child: Text('CustomerName: ' + doc['orderBy'], style: GoogleFonts.inter(fontSize: 13.sp)),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 5.h),
+                                child: Text((doc['comment'] != '') ? doc['comment'] : '(No Review)', style: GoogleFonts.inter(fontSize: 13.sp)),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                }
+            ),
           )
               : Column(
             mainAxisAlignment: MainAxisAlignment.center,

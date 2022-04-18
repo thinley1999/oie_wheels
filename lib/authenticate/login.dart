@@ -181,103 +181,63 @@ class StartState extends State<Login> {
         resizeToAvoidBottomInset: false,
         body: DoubleBackToCloseApp(
           snackBar: SnackBar(
+            duration: Duration(seconds: 1),
             backgroundColor: Color(0xFF1976D2),
             content: Text('Press back again to exit', style: GoogleFonts.inter(color: Colors.white, fontSize: 15.sp), textAlign: TextAlign.center),
           ),
-          child: SingleChildScrollView(
-              child: Form(
-                key: _formKey,
-                child: AutofillGroup(
-                  child: Column(
+          child: Form(
+            key: _formKey,
+            child: AutofillGroup(
+              child: Stack(
+                children: [
+                  Column(
                     children: [
                       Container(
-                        height: 240.h,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(85.sp)),
-                          color: Color(0xff0d47a1),
-                          gradient: LinearGradient(colors: [(Color(0xff0d47a1)), Colors.blue],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
-                        ),
+                        height: 200.h,
+                        margin: EdgeInsets.only(top: 30.h),
                         child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(top: 30.h),
-                                  child: CircleAvatar(
-                                    backgroundImage: AssetImage(
-                                      'assets/logo.jpg',
-                                    ),
-                                    radius: 50.sp,
-                                    backgroundColor: Colors.transparent,
-                                  ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(right: 18.w, top: 18.h),
-                                  alignment: Alignment.bottomRight,
-                                  child: Text(
-                                    "Login",
-                                    style: GoogleFonts.inter(
-                                        fontSize: 18.sp,
-                                        color: Colors.white
-                                    ),
-                                  ),
-                                )
-                              ],
+                            child: Image.asset(
+                              'assets/logo2.png',
+                              width: 250.w,
                             )
                         ),
                       ),
                       Container(
-                        margin: EdgeInsets.only(left: 18.w, right: 18.w, top: 55.h),
+                        margin: EdgeInsets.only(left: 18.w, right: 18.w),
                         padding: EdgeInsets.symmetric(horizontal: 18.w),
                         height: 44.h,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50.sp),
-                          color: Colors.amber[700],
-                          boxShadow: [
-                            BoxShadow(
-                                offset: Offset(0, 10),
-                                blurRadius: 50.sp,
-                                color: Color(0xffEEEEEE)
+                        color: Colors.amber[700],
+                        child: TextFormField(
+                          controller: _emailController,
+                          style: GoogleFonts.inter(fontSize: 15.sp, color: Colors.white),
+                          cursorColor: Colors.white,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.zero,
+                            icon: Container(
+                                padding: EdgeInsets.symmetric(vertical: 5.h),
+                                decoration: BoxDecoration(
+                                  border: Border(right: BorderSide(color: Colors.white)),
+                                ),
+                                child: Padding(
+                                    padding: EdgeInsets.only(right: 10.w),
+                                    child: Icon(Icons.mail, color: Colors.white, size: 22.sp,)
+                                )
                             ),
-                          ],
-                        ),
-                        child: Center(
-                          child: TextFormField(
-                            controller: _emailController,
-                            style: GoogleFonts.inter(fontSize: 15.sp, color: Colors.white),
-                            cursorColor: Colors.white,
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.zero,
-                              icon: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 5.h),
-                                  decoration: BoxDecoration(
-                                    border: Border(right: BorderSide(color: Colors.white)),
-                                  ),
-                                  child: Padding(
-                                      padding: EdgeInsets.only(right: 10.w),
-                                      child: Icon(Icons.mail, color: Colors.white, size: 22.sp,)
-                                  )
-                              ),
-                              hintText: "Enter Email",
-                              border: InputBorder.none,
-                              hintStyle: GoogleFonts.inter(fontSize: 15.sp, color: Colors.white),
-                              enabledBorder: InputBorder.none,
-                              errorStyle: GoogleFonts.inter(fontSize: 12.sp, color: Colors.white),
-                              errorBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                            ),
-                            autofillHints: [AutofillHints.username],
-                            validator: (String ? value) {
-                              if(value!.isEmpty) {
-                                return 'Please enter email';
-                              }
-                              return null;
-                            },
+                            hintText: "Enter Email",
+                            border: InputBorder.none,
+                            hintStyle: GoogleFonts.inter(fontSize: 15.sp, color: Colors.white),
+                            enabledBorder: InputBorder.none,
+                            errorStyle: GoogleFonts.inter(fontSize: 12.sp, color: Colors.white),
+                            errorBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
                           ),
+                          autofillHints: [AutofillHints.username],
+                          validator: (String ? value) {
+                            if(value!.isEmpty) {
+                              return 'Please enter email';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       Container(
@@ -285,17 +245,7 @@ class StartState extends State<Login> {
                         margin: EdgeInsets.only(left: 18.w, right: 18.w, top: 15.h),
                         padding: EdgeInsets.symmetric(horizontal: 18.w),
                         height: 44.h,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50.sp),
-                          color: Colors.amber[700],
-                          boxShadow: [
-                            BoxShadow(
-                                offset: Offset(0, 10),
-                                blurRadius: 50.sp,
-                                color: Color(0xffEEEEEE)
-                            ),
-                          ],
-                        ),
+                        color: Colors.amber[700],
                         child: TextFormField(
                           controller: _passwordController,
                           style: GoogleFonts.inter(fontSize: 15.sp, color: Colors.white),
@@ -315,7 +265,7 @@ class StartState extends State<Login> {
                                 ),
                                 child: Padding(
                                   padding: EdgeInsets.only(right: 10.w),
-                                  child: Icon(Icons.vpn_key, color: Colors.white, size: 22.sp,),
+                                  child: Icon(Icons.lock, color: Colors.white, size: 22.sp,),
                                 )
                             ),
                             hintText: "Enter Password",
@@ -335,6 +285,46 @@ class StartState extends State<Login> {
                             return null;
                           },
                           obscureText: _seepassword,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              isLoading = true;
+                            });
+
+                            _formKey.currentState!.save();
+
+                            logIn(_emailController.text, _passwordController.text).then((user) {
+                              if (user != null) {
+                                print("Login Sucessfull");
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                showOverlay(context);
+                              } else {
+                                print("Login Failed");
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              }
+                            });
+                          }
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          margin: EdgeInsets.only(left: 18.w, right: 18.w, top: 15.h),
+                          padding: EdgeInsets.symmetric(horizontal: 18.w),
+                          height: 40.h,
+                          color: Color(0xFF1976D2),
+                          child: Text(
+                            "LOGIN",
+                            style: GoogleFonts.inter(
+                                fontSize: 15.sp,
+                                color: Colors.white
+                            ),
+                          ),
                         ),
                       ),
                       Container(
@@ -371,88 +361,39 @@ class StartState extends State<Login> {
                           ],
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          if (_formKey.currentState!.validate()) {
-                            setState(() {
-                              isLoading = true;
-                            });
-
-                            _formKey.currentState!.save();
-
-                            logIn(_emailController.text, _passwordController.text).then((user) {
-                              if (user != null) {
-                                print("Login Sucessfull");
-                                setState(() {
-                                  isLoading = false;
-                                });
-                                showOverlay(context);
-                              } else {
-                                print("Login Failed");
-                                setState(() {
-                                  isLoading = false;
-                                });
-                              }
-                            });
-                          }
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          margin: EdgeInsets.only(left: 18.w, right: 18.w, top: 55.h),
-                          padding: EdgeInsets.symmetric(horizontal: 18.w),
-                          height: 44.h,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(colors: [(Color(0xff0d47a1)), Colors.blue],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight
-                            ),
-                            borderRadius: BorderRadius.circular(50.sp),
-                            color: Colors.grey[200],
-                            boxShadow: [
-                              BoxShadow(
-                                  offset: Offset(0, 10),
-                                  blurRadius: 50.sp,
-                                  color: Color(0xffEEEEEE)
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            "LOGIN",
-                            style: GoogleFonts.inter(
-                                fontSize: 15.sp,
-                                color: Colors.white
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(top: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("Don't Have Any Account?  ",
-                                style: GoogleFonts.inter(
-                                    fontSize: 13.sp)),
-                            GestureDetector(
-                              child: Text(
-                                "SIGN UP NOW",
-                                style: GoogleFonts.inter(
-                                    fontSize: 12.sp,
-                                    color: Colors.amber[700]
-                                ),
-                              ),
-                              onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => CreateAccount(),)
-                                );
-                              },
-                            )
-                          ],
-                        ),
-                      )
                     ],
                   ),
-                ),
-              )
+                  Align(
+                    alignment: FractionalOffset.bottomCenter,
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: 10.h),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Don't Have Any Account?  ",
+                              style: GoogleFonts.inter(
+                                  fontSize: 13.sp)),
+                          GestureDetector(
+                            child: Text(
+                              "SIGN UP NOW",
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.bold,
+                                  fontSize: 12.sp,
+                                  color: Colors.amber[700]
+                              ),
+                            ),
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => CreateAccount(),)
+                              );
+                            },
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
           ),
         )
     );

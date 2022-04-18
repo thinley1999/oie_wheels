@@ -27,6 +27,7 @@ class _AddShopItemState extends State<AddShopItem> {
   final _formKey= GlobalKey<FormState>();
   TextEditingController _nameController = TextEditingController();
   TextEditingController _priceController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
   TextEditingController _discountChargeController = TextEditingController();
   TextEditingController _startDate = TextEditingController();
   TextEditingController _endDate = TextEditingController();
@@ -277,6 +278,41 @@ class _AddShopItemState extends State<AddShopItem> {
                               return 'Please enter price';
                             }
                           },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 10.w, top: 5.h),
+                      child: Text('Description*', style: GoogleFonts.inter(fontSize: 13.sp)),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: SizedBox(
+                        height: 58.h,
+                        child: TextFormField(
+                          keyboardType: TextInputType.multiline,
+                          maxLength: 1000,
+                          minLines: 1,
+                          maxLines: 100,
+                          cursorColor: Colors.amber[900],
+                          style: GoogleFonts.inter(fontSize: 13.sp),
+                          textAlign: TextAlign.start,
+                          controller: _descriptionController,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.only(left: 10.w),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(0),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.red),
+                              borderRadius: BorderRadius.circular(0),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -910,6 +946,7 @@ class _AddShopItemState extends State<AddShopItem> {
       'shopItemType': selectedCatrgory.toString(),
       'shopItem': selectedItem.toString(),
       'price': _priceController.text,
+      'description': _descriptionController.text,
       'shopName': shopName.toString(),
       'discount': _discountChargeController.text,
       'startDate': _startDate.text,

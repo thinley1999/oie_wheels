@@ -7,12 +7,12 @@ import 'package:location/location.dart';
 import 'package:oie_wheels/content/store.dart';
 
 
-class Demo extends StatefulWidget {
+class Location1 extends StatefulWidget {
   @override
-  _DemoState createState() => _DemoState();
+  _Location1State createState() => _Location1State();
 }
 
-class _DemoState extends State<Demo> {
+class _Location1State extends State<Location1> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 

@@ -28,7 +28,10 @@ class _FetchShopState extends State<FetchShop> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<QuerySnapshot>(
-      future: FirebaseFirestore.instance.collection("StoreItem2").where("shopItemType",isEqualTo: widget.s_list[widget.index]["shopItemType"].toString()).get(),
+      future: FirebaseFirestore.instance.collection("StoreItem2")
+          .where("shopName",isEqualTo: widget.s_list[widget.index]["shopName"].toString())
+          .where("shopItemType",isEqualTo: widget.s_list[widget.index]["shopItemType"].toString())
+          .get(),
         builder: (BuildContext context, snapshot){
           if (!snapshot.hasData) {
             return SizedBox(
@@ -42,107 +45,158 @@ class _FetchShopState extends State<FetchShop> {
               ),
             );
           }
-          return snapshot.data!.docs.isNotEmpty ? GridView.builder(
-              shrinkWrap: true,
-              itemCount: snapshot.data!.docs.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-              childAspectRatio: 0.65,
-            ),
-              itemBuilder: (context, index) {
-                List<dynamic> image = snapshot.data!.docs[index]['imageUrl'];
-                var doc = snapshot.data!.docs[index];
-                return Container(
-                  margin: EdgeInsets.fromLTRB(5.w, 5.h, 5.w, 0),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 150.h,
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white, width: 3.w)
-                        ),
-                        child: CarouselSlider.builder(
-                            itemCount: image.length,
-                            slideBuilder: (index){
-                              return Image.network(
-                                image[index],
-                                fit: BoxFit.cover,
-                              );
-                            },
-                          slideTransform: CubeTransform(rotationAngle: 0),
-                          slideIndicator: CircularSlideIndicator(
-                            indicatorBackgroundColor: Color.fromRGBO(0, 0, 0, 0.4),
-                            currentIndicatorColor: Color.fromRGBO(1, 1, 1, 0.9),
-                            indicatorRadius: 4.sp,
-                            itemSpacing: 10.sp,
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          FirebaseFirestore.instance.collection('View').doc((_auth.currentUser)!.uid).collection('StoreItem1').doc((_auth.currentUser)!.uid).set({
-                            'refId': doc['refId'],
-                            'shopName': widget.s_list[widget.index]["shopName"].toString(),
-                            'shopItemType': widget.s_list[widget.index]["shopItemType"].toString(),
-                          });
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return Dialog(
-                                  child: Container(
-                                    padding: EdgeInsets.only(left: 20.w, top: 20.h, right: 20.w),
-                                    child: StreamBuilder<QuerySnapshot>(
-                                      stream: FirebaseFirestore.instance
-                                          .collection("View")
-                                          .doc((_auth.currentUser)!.uid)
-                                          .collection("StoreItem1").snapshots(),
-                                      builder: (context,snapshot){
-                                        if (snapshot.hasError)
-                                          return new Text('Error: ${snapshot.error}');
-                                        switch (snapshot.connectionState){
-                                          case ConnectionState.waiting:
-                                            return  Container(
-                                              height: 200.0,
-                                              alignment: Alignment.center,
-                                              child: CircularProgressIndicator(
-                                                valueColor: AlwaysStoppedAnimation<Color>(Colors.black45),
-                                              ),
-                                            );
-                                          default:
-                                            return ListView.builder(
-                                                shrinkWrap: true,
-                                                itemCount:snapshot.data!.docs.length,
-                                                itemBuilder: (_,index){
-                                                  List<DocumentSnapshot> userDocument = snapshot.data!.docs;
-                                                  return FetchShopDialog(d_list: userDocument,index: index);
-                                                });
-                                        }
-                                      },
-                                    )
-                                  ),
-                                );
-                              }
-                          );
-                        },
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          color: Colors.white,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 5.h),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(doc['shopItemName'], style: GoogleFonts.inter(fontSize: 13.sp, fontWeight: FontWeight.w800)),
-                                Text('Nu. '+doc['price'] +'.00', style: GoogleFonts.inter(fontSize: 13.sp)),
-                              ],
+          return snapshot.data!.docs.isNotEmpty ? Container(
+            margin: EdgeInsets.only(bottom: 30.h, top: 10.h),
+            child: GridView.builder(
+                shrinkWrap: true,
+              physics: ClampingScrollPhysics(),
+                itemCount: snapshot.data!.docs.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                childAspectRatio: 0.7.sp,
+              ),
+                itemBuilder: (context, index) {
+                  List<dynamic> image = snapshot.data!.docs[index]['imageUrl'];
+                  var doc = snapshot.data!.docs[index];
+                  return Container(
+                    margin: EdgeInsets.fromLTRB(5.w, 5.h, 5.w, 0),
+                    child: Column(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            FirebaseFirestore.instance.collection('View').doc((_auth.currentUser)!.uid).collection('StoreItem1').doc((_auth.currentUser)!.uid).set({
+                              'refId': doc['refId'],
+                              'shopName': widget.s_list[widget.index]["shopName"].toString(),
+                              'shopItemType': widget.s_list[widget.index]["shopItemType"].toString(),
+                            });
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return Dialog(
+                                    child: Container(
+                                        padding: EdgeInsets.only(left: 20.w, top: 20.h, right: 20.w),
+                                        child: StreamBuilder<QuerySnapshot>(
+                                          stream: FirebaseFirestore.instance
+                                              .collection("View")
+                                              .doc((_auth.currentUser)!.uid)
+                                              .collection("StoreItem1").snapshots(),
+                                          builder: (context,snapshot){
+                                            if (snapshot.hasError)
+                                              return new Text('Error: ${snapshot.error}');
+                                            switch (snapshot.connectionState){
+                                              case ConnectionState.waiting:
+                                                return  Container(
+                                                  height: 200.0,
+                                                  alignment: Alignment.center,
+                                                  child: CircularProgressIndicator(
+                                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black45),
+                                                  ),
+                                                );
+                                              default:
+                                                return ListView.builder(
+                                                    shrinkWrap: true,
+                                                    itemCount:snapshot.data!.docs.length,
+                                                    itemBuilder: (_,index){
+                                                      List<DocumentSnapshot> userDocument = snapshot.data!.docs;
+                                                      return FetchShopDialog(d_list: userDocument,index: index);
+                                                    });
+                                            }
+                                          },
+                                        )
+                                    ),
+                                  );
+                                }
+                            );
+                          },
+                          child: Container(
+                            height: 150.h,
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.white, width: 3.w)
+                            ),
+                            child: CarouselSlider.builder(
+                                itemCount: image.length,
+                                slideBuilder: (index){
+                                  return Image.network(
+                                    image[index],
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              slideTransform: CubeTransform(rotationAngle: 0),
+                              slideIndicator: CircularSlideIndicator(
+                                indicatorBackgroundColor: Color.fromRGBO(0, 0, 0, 0.4),
+                                currentIndicatorColor: Color.fromRGBO(1, 1, 1, 0.9),
+                                indicatorRadius: 4.sp,
+                                itemSpacing: 10.sp,
+                              ),
                             ),
                           ),
                         ),
-                      )
-                    ],
-                  ),
-                );
-              },
+                        GestureDetector(
+                          onTap: () {
+                            FirebaseFirestore.instance.collection('View').doc((_auth.currentUser)!.uid).collection('StoreItem1').doc((_auth.currentUser)!.uid).set({
+                              'refId': doc['refId'],
+                              'shopName': widget.s_list[widget.index]["shopName"].toString(),
+                              'shopItemType': widget.s_list[widget.index]["shopItemType"].toString(),
+                            });
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return Dialog(
+                                    child: Container(
+                                      padding: EdgeInsets.only(left: 20.w, top: 20.h, right: 20.w),
+                                      child: StreamBuilder<QuerySnapshot>(
+                                        stream: FirebaseFirestore.instance
+                                            .collection("View")
+                                            .doc((_auth.currentUser)!.uid)
+                                            .collection("StoreItem1").snapshots(),
+                                        builder: (context,snapshot){
+                                          if (snapshot.hasError)
+                                            return new Text('Error: ${snapshot.error}');
+                                          switch (snapshot.connectionState){
+                                            case ConnectionState.waiting:
+                                              return  Container(
+                                                height: 200.0,
+                                                alignment: Alignment.center,
+                                                child: CircularProgressIndicator(
+                                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black45),
+                                                ),
+                                              );
+                                            default:
+                                              return ListView.builder(
+                                                  shrinkWrap: true,
+                                                  itemCount:snapshot.data!.docs.length,
+                                                  itemBuilder: (_,index){
+                                                    List<DocumentSnapshot> userDocument = snapshot.data!.docs;
+                                                    return FetchShopDialog(d_list: userDocument,index: index);
+                                                  });
+                                          }
+                                        },
+                                      )
+                                    ),
+                                  );
+                                }
+                            );
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            color: Colors.white,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 5.h),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(doc['shopItemName'], style: GoogleFonts.inter(fontSize: 13.sp, fontWeight: FontWeight.w800)),
+                                  Text('Nu. '+doc['price'] +'.00', style: GoogleFonts.inter(fontSize: 13.sp)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                },
+            ),
           )
           :SizedBox(
             height: MediaQuery.of(context).size.height / 1.3,

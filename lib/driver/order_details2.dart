@@ -33,7 +33,7 @@ class _OrderDetails2State extends State<OrderDetails2> {
                 Navigator.pop(context);
               },
             ),
-            title: Text('Order Details2', style: GoogleFonts.inter(
+            title: Text('Order Details', style: GoogleFonts.inter(
                 fontSize: 15.sp, fontWeight: FontWeight.bold)),
             centerTitle: true,
             bottomOpacity: 0.0,
@@ -61,8 +61,8 @@ class _OrderDetails2State extends State<OrderDetails2> {
                   height: 65.h,
                   child: Center(
                       child: Image.asset(
-                        'assets/logo1.png',
-                        width: 110.w,
+                        'assets/logo2.png',
+                        width: 130.w,
                       )
                   ),
                 ),
@@ -191,6 +191,10 @@ class _OrderDetails2State extends State<OrderDetails2> {
                                                                   padding: EdgeInsets.only(left: 10.w, top: 5.h),
                                                                   child: Text('Order Status:',style: GoogleFonts.inter(fontSize: 11.sp, color:Colors.grey, fontWeight: FontWeight.w800)),
                                                                 ),
+                                                                Padding(
+                                                                  padding: EdgeInsets.only(left: 10.w, top: 5.h),
+                                                                  child: Text('Payment Status:',style: GoogleFonts.inter(fontSize: 11.sp, color:Colors.grey, fontWeight: FontWeight.w800)),
+                                                                ),
                                                               ],
                                                             ),
                                                             SizedBox(width: 20.w),
@@ -224,6 +228,10 @@ class _OrderDetails2State extends State<OrderDetails2> {
                                                                 Padding(
                                                                   padding: EdgeInsets.only(left: 10.w, top: 5.h),
                                                                   child: Text(doc['status'],style: GoogleFonts.inter(fontSize: 11.sp, color: Colors.green, fontWeight: FontWeight.w800)),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets.only(left: 10.w, top: 5.h),
+                                                                  child: Text(doc['paymentStatus'],style: GoogleFonts.inter(fontSize: 11.sp, color: Colors.green, fontWeight: FontWeight.w800)),
                                                                 ),
                                                               ],
                                                             ),
@@ -440,7 +448,7 @@ class _OrderDetails2State extends State<OrderDetails2> {
                                                                   children: [
                                                                     Text('Total Amount', style: GoogleFonts.inter(fontSize: 15.sp,)),
                                                                     SizedBox(width: 30.w,),
-                                                                    Text('BTN ' + doc['totalAmount'].toString(), style: GoogleFonts.inter(fontSize: 15.sp, fontWeight: FontWeight.w700))
+                                                                    Text(doc['from'] == 'restaurant'? 'BTN ' + doc['totalAmount'].toString() + '0' : 'BTN ' + doc['totalAmount'].toString() + '.00', style: GoogleFonts.inter(fontSize: 15.sp, fontWeight: FontWeight.w700))
                                                                   ],
                                                                 ),
                                                               ),

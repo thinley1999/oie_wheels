@@ -5,9 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_api_headers/google_api_headers.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:oie_wheels/shop/my_shop.dart';
+const kGoogleApiKey = 'AIzaSyAroZNzwV9wOTEmpREoKmkw-XpYTGZN_Xc';
 
 class EditMyShop extends StatefulWidget {
   @override
@@ -92,7 +96,6 @@ class _FetchEditMyStoreState extends State<FetchEditMyStore> {
       _endDate.text = widget.r_list[widget.index]["endDate"].toString();
     });
     selectedDistrict = widget.r_list[widget.index]["district"].toString();
-    selectedCity = widget.r_list[widget.index]["city"].toString();
     monday = widget.r_list[widget.index]['days'][0]['monday'];
     _mondayOpen.text = widget.r_list[widget.index]['days'][0]['mondayOpen'].toString();
     _mondayClose.text = widget.r_list[widget.index]['days'][0]['mondayClose'].toString();
@@ -127,8 +130,9 @@ class _FetchEditMyStoreState extends State<FetchEditMyStore> {
   }
 
   var selectedDistrict;
-  var selectedCity;
 
+  double lat = 0.0;
+  double lon = 0.0;
   var _mondayOpen = TextEditingController();
   var _mondayClose = TextEditingController();
   var _tuesdayOpen = TextEditingController();
@@ -154,6 +158,14 @@ class _FetchEditMyStoreState extends State<FetchEditMyStore> {
   bool friday = false;
   bool saturday = false;
   bool sunday = false;
+
+  void onError(PlacesAutocompleteResponse response) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(response.errorMessage ?? 'Unknown error'),
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -182,6 +194,28 @@ class _FetchEditMyStoreState extends State<FetchEditMyStore> {
                         style: GoogleFonts.inter(fontSize: 13.sp),
                         textAlign: TextAlign.start,
                         controller: _addressController,
+                        onTap: () async{
+                          var place = await PlacesAutocomplete.show(
+                            context: context,
+                            apiKey: kGoogleApiKey,
+                            onError: onError,
+                            mode: Mode.overlay,
+                            language: 'en',
+                            components: [Component(Component.country, 'bt')],
+                          );
+                          if(place != null){
+                            final plist = GoogleMapsPlaces(apiKey:kGoogleApiKey, apiHeaders: await const GoogleApiHeaders().getHeaders(),);
+                            String placeid = place.placeId ?? "0";
+                            final detail = await plist.getDetailsByPlaceId(placeid);
+                            final geometry = detail.result.geometry!;
+
+                            setState(() {
+                              _addressController.text = place.description.toString();
+                              lat = geometry.location.lat;
+                              lon = geometry.location.lng;
+                            });
+                          }
+                        },
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.only(left: 10.w),
                           border: OutlineInputBorder(
@@ -239,53 +273,6 @@ class _FetchEditMyStoreState extends State<FetchEditMyStore> {
                               underline: SizedBox(),
                               hint: Text(
                                 'Select District',
-                                style: GoogleFonts.inter(fontSize: 16, color: Colors.black),
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(left: 10.w, top: 5.h),
-                    child: Text('City*', style: GoogleFonts.inter(fontSize: 13.sp)),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w),
-                    child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance.collection('City').snapshots(),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) return LinearProgressIndicator();
-                        else {
-                          return Container(
-                            padding: EdgeInsets.only(left: 10.w),
-                            decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey, width: 1)
-                            ),
-                            child: DropdownButton(
-                              items: snapshot.data!.docs
-                                  .map((DocumentSnapshot document) {
-                                return DropdownMenuItem<String>(
-                                  value: document['cityName'] ,
-                                  child: Text(document['cityName']),
-                                );
-                              }).toList(),
-                              onChanged: (categoryValue) {
-                                setState(() {
-                                  selectedCity = categoryValue;
-                                });
-                              },
-                              value: selectedCity,
-                              isExpanded: true,
-                              underline: SizedBox(),
-                              hint: Text(
-                                'Select City',
                                 style: GoogleFonts.inter(fontSize: 16, color: Colors.black),
                               ),
                             ),
@@ -1124,7 +1111,6 @@ class _FetchEditMyStoreState extends State<FetchEditMyStore> {
                         'shopAddress': _addressController.text,
                         'deliveryTime': _timeController.text,
                         'district' : selectedDistrict.toString(),
-                        'city': selectedCity.toString(),
                         'days':[
                           {'day': 'Monday', 'isClosed': monday, 'openingTime': _mondayOpen.text, 'closingTime': _mondayClose.text},
                           {'day': 'Tuesday', 'isClosed': tuesday, 'openingTime': _tuesdayOpen.text, 'closingTime': _tuesdayClose.text},
@@ -1137,6 +1123,8 @@ class _FetchEditMyStoreState extends State<FetchEditMyStore> {
                         'discount': _discountChargeController.text,
                         'startDate': _startDate.text,
                         'endDate': _endDate.text,
+                        'lat': lat,
+                        'lon': lon,
                       }).then((value) {
                         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>MyShop()));
                         Fluttertoast.showToast(

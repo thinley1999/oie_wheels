@@ -35,6 +35,7 @@ class _FetchShopItemState extends State<FetchShopItem> {
     FirebaseFirestore.instance.collection("StoreItem2").where("refId",isEqualTo: widget.s_list[widget.index]["refId"].toString()).get().then((value){
       _nameController.text = widget.s_list[widget.index]["shopItemName"].toString();
       _priceController.text = widget.s_list[widget.index]["price"].toString();
+      _descriptionController.text = widget.s_list[widget.index]["description"].toString();
       _discountChargeController.text = widget.s_list[widget.index]["discount"].toString();
       _startDate.text = widget.s_list[widget.index]["startDate"].toString();
       _endDate.text = widget.s_list[widget.index]["endDate"].toString();
@@ -71,6 +72,7 @@ class _FetchShopItemState extends State<FetchShopItem> {
 
   TextEditingController _nameController = TextEditingController();
   TextEditingController _priceController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
   TextEditingController _discountChargeController = TextEditingController();
   TextEditingController _startDate = TextEditingController();
   TextEditingController _endDate = TextEditingController();
@@ -278,6 +280,41 @@ class _FetchShopItemState extends State<FetchShopItem> {
                             return 'Please enter price';
                           }
                         },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 10.w, top: 5.h),
+                    child: Text('Description*', style: GoogleFonts.inter(fontSize: 13.sp)),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: SizedBox(
+                      height: 58.h,
+                      child: TextFormField(
+                        keyboardType: TextInputType.multiline,
+                        maxLength: 1000,
+                        minLines: 1,
+                        maxLines: 100,
+                        cursorColor: Colors.amber[900],
+                        style: GoogleFonts.inter(fontSize: 13.sp),
+                        textAlign: TextAlign.start,
+                        controller: _descriptionController,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(left: 10.w),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(0),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.red),
+                            borderRadius: BorderRadius.circular(0),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -953,7 +990,8 @@ class _FetchShopItemState extends State<FetchShopItem> {
       'shopItemType': selectedCatrgory.toString(),
       'shopItem': selectedItem.toString(),
       'price': _priceController.text,
-      'shopName': 'Kay Clothing',
+      'description': _descriptionController.text,
+      'shopName': widget.s_list[widget.index]["shopName"].toString(),
       'discount': _discountChargeController.text,
       'startDate': _startDate.text,
       'endDate': _endDate.text,

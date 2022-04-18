@@ -54,6 +54,64 @@ class _FetchPaymentState extends State<FetchPayment> {
                 children: [
                   Padding(
                     padding: EdgeInsets.only(left: 10.w, top: 5.h),
+                    child: Text('Druk Smart Account No.*', style: GoogleFonts.inter()),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: SizedBox(
+                      height: 38.h,
+                      child: TextFormField(
+                        controller: TextEditingController(text: '200990179'),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(left: 10.w),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.red),
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                        ),
+                        readOnly: true,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 10.w, top: 5.h),
+                    child: Text('Amount to Pay*', style: GoogleFonts.inter()),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: SizedBox(
+                      height: 38.h,
+                      child: TextFormField(
+                        controller: TextEditingController(text: widget.p_list[widget.index]["totalAmount"].toString() + '.0'),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(left: 10.w),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.red),
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                        ),
+                        readOnly: true,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 10.w, top: 5.h),
                     child: Text('Payment Date*', style: GoogleFonts.inter()),
                   ),
                   Padding(
@@ -320,25 +378,7 @@ class _FetchPaymentState extends State<FetchPayment> {
       'jrnlNo': _jrnlNo.text,
       'received from customer': int.parse(_amountPaid.text),
       'screenShot': imageUrlList,
-      'status': (amount >= totalAmount) ? 'paid' : 'partially paid'
-    });
-    FirebaseFirestore.instance
-        .collection("Order")
-        .doc((_auth.currentUser)!.uid)
-        .collection("ConfirmOrder")
-        .where('dateTime', isEqualTo: widget.p_list[widget.index]["dateTime"].toString())
-        .get()
-        .then((value) {
-      value.docs.forEach((result) {
-        FirebaseFirestore.instance
-            .collection('Order')
-            .doc((_auth.currentUser)!.uid)
-            .collection('ConfirmOrder')
-            .doc(result.data()['oId'])
-            .update({
-          'status': (amount >= totalAmount) ? 'paid' : 'partially paid',
-        });
-      });
+      'paymentStatus': (amount >= totalAmount) ? 'paid' : 'partially paid'
     });
   }
 }
@@ -383,6 +423,35 @@ class _FetchPartiallyPaidState extends State<FetchPartiallyPaid> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 10.w, top: 5.h),
+                    child: Text('Druk Smart Account No.*', style: GoogleFonts.inter()),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: SizedBox(
+                      height: 38.h,
+                      child: TextFormField(
+                        controller: TextEditingController(text: '200990179'),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(left: 10.w),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.red),
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                        ),
+                        readOnly: true,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -640,25 +709,7 @@ class _FetchPartiallyPaidState extends State<FetchPartiallyPaid> {
       'jrnlNo': widget.p_list[widget.index]["jrnlNo"].toString() +'\n'+ _jrnlNo.text,
       'received from customer': amountPaid + widget.p_list[widget.index]["received from customer"],
       'screenShot': FieldValue.arrayUnion(imageUrlList),
-      'status': 'paid'
-    });
-    FirebaseFirestore.instance
-        .collection("Order")
-        .doc((_auth.currentUser)!.uid)
-        .collection("ConfirmOrder")
-        .where('dateTime', isEqualTo: widget.p_list[widget.index]["dateTime"].toString())
-        .get()
-        .then((value) {
-      value.docs.forEach((result) {
-        FirebaseFirestore.instance
-            .collection('Order')
-            .doc((_auth.currentUser)!.uid)
-            .collection('ConfirmOrder')
-            .doc(result.data()['oId'])
-            .update({
-          'status': 'paid',
-        });
-      });
+      'paymentStatus': 'paid'
     });
   }
 }

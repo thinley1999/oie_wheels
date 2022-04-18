@@ -34,6 +34,7 @@ class _OrderSummaryState extends State<OrderSummary> {
   bool check = true;
   bool visibility = false;
   bool notification = false;
+  bool change = false;
   var selectedPayment;
 
   List<String> payment = ['Cash on Delivery', 'Bank'];
@@ -103,6 +104,7 @@ class _OrderSummaryState extends State<OrderSummary> {
       sCharge2 = value.data()!['deliveryCharge2'];
       lat1 = value.data()!['lat'];
       lon1 = value.data()!['lon'];
+      minDistance = value.data()!['minDistance'];
     });
     FirebaseFirestore.instance
         .collection("Order")
@@ -173,7 +175,11 @@ class _OrderSummaryState extends State<OrderSummary> {
   var sCharge2;
   var lat1;
   var lon1;
+  var lat2;
+  var lon2;
+  var deliveryAddress;
   var restaurantDiscount;
+  var minDistance;
   num sum = 0.0;
   num sum2 = 0.0;
 
@@ -242,8 +248,8 @@ class _OrderSummaryState extends State<OrderSummary> {
                     height: 65.h,
                     child: Center(
                         child: Image.asset(
-                          'assets/logo1.png',
-                          width: 110.w,
+                          'assets/logo2.png',
+                          width: 130.w,
                         )
                     ),
                   ),
@@ -351,9 +357,6 @@ class _OrderSummaryState extends State<OrderSummary> {
                               itemCount:1,
                               itemBuilder: (context,index){
                                 var doc1 = snapshot.data!.docs[index];
-                                var lat2 = doc1['lat'];
-                                var lon2 = doc1['lon'];
-                                var deliveryAddress = doc1['deliverAddress'];
                                 return (doc1['from'] == 'restaurant')
                                     ?FutureBuilder<QuerySnapshot>(
                                     future: FirebaseFirestore.instance.collection("Restaurant").where("restaurantName",isEqualTo: doc1["orderFrom"]).get(),
@@ -390,9 +393,10 @@ class _OrderSummaryState extends State<OrderSummary> {
                                             int pricePerKm = sCharge;
                                             int pricePerKm2 = sCharge2;
                                             dsToRestaurant += calculateDistance(doc['lat'], doc['lon'], lat1, lon1);
-                                            restaurantToCustomer += calculateDistance(doc['lat'], doc['lon'], lat2, lon2);
+                                            restaurantToCustomer += (change == false) ? calculateDistance(doc['lat'], doc['lon'], doc1['lat'], doc1['lon'])
+                                            : calculateDistance(doc['lat'], doc['lon'], lat2, lon2);
                                             totalDistance = (dsToRestaurant < freeDistance) ? restaurantToCustomer : dsToRestaurant + restaurantToCustomer;
-                                            var charge = (totalDistance.round() < 50) ? totalDistance.round() * pricePerKm : totalDistance.round() * pricePerKm2;
+                                            var charge = (totalDistance.round() < minDistance) ? totalDistance.round() * pricePerKm : totalDistance.round() * pricePerKm2;
 
                                             var mainBst = bst/100*itemValue;
 
@@ -582,6 +586,7 @@ class _OrderSummaryState extends State<OrderSummary> {
                                                                     onChanged: (value) {
                                                                       setState(() {
                                                                         this.check = value!;
+                                                                        change = false;
                                                                       });
                                                                       if(visibility == false) {
                                                                         setState(() {
@@ -640,10 +645,11 @@ class _OrderSummaryState extends State<OrderSummary> {
                                                                             final geometry = detail.result.geometry!;
 
                                                                             setState(() {
+                                                                              change = true;
                                                                               _location.text = place.description.toString();
-                                                                              deliveryAddress = place.description.toString();
                                                                               lat2 = geometry.location.lat;
                                                                               lon2 = geometry.location.lng;
+                                                                              deliveryAddress = place.description.toString();
                                                                             });
                                                                           }
                                                                         },
@@ -714,7 +720,7 @@ class _OrderSummaryState extends State<OrderSummary> {
                                                         'total': '$itemValue',
                                                         'bst': mainBst,
                                                         'serviceCharge': doc['serviceCharge'],
-                                                        'deliveryAddress': deliveryAddress,
+                                                        'deliveryAddress': (change == false) ? doc1['deliverAddress'] : deliveryAddress,
                                                         'deliveryCharge': "$charge",
                                                         'discountOnDC': '$discountOnDc',
                                                         'discountOnItem': '$discountOnItem',
@@ -726,20 +732,24 @@ class _OrderSummaryState extends State<OrderSummary> {
                                                         'admin': notification,
                                                         'cancel': notification,
                                                         'seen': notification,
-                                                        'status': 'unassigned orders',
-                                                        'uid': (_auth.currentUser)!.uid,
-                                                      });
-                                                      FirebaseFirestore.instance.collection('Rating5')
-                                                          .doc(orderId).set({
-                                                        'dateTime': dateTime,
-                                                        'orderId': orderId,
-                                                        'orderFrom': doc['restaurantName'],
-                                                        'orderBy': ds[index]['orderBy'],
                                                         'rating': 1.0,
                                                         'comment': '',
                                                         'isRated': false,
+                                                        'paymentStatus': 'not paid',
+                                                        'status': 'unassigned orders',
                                                         'uid': (_auth.currentUser)!.uid,
-                                                      }).then((value) => print('Success'));
+                                                      });
+                                                      // FirebaseFirestore.instance.collection('Rating5')
+                                                      //     .doc(orderId).set({
+                                                      //   'dateTime': dateTime,
+                                                      //   'orderId': orderId,
+                                                      //   'orderFrom': doc['restaurantName'],
+                                                      //   'orderBy': ds[index]['orderBy'],
+                                                      //   'rating': 1.0,
+                                                      //   'comment': '',
+                                                      //   'isRated': false,
+                                                      //   'uid': (_auth.currentUser)!.uid,
+                                                      // }).then((value) => print('Success'));
                                                       _onPressed();
                                                     }
                                                   },
@@ -791,9 +801,10 @@ class _OrderSummaryState extends State<OrderSummary> {
                                             double totalDistance = 0;
                                             int pricePerKm = sCharge;
                                             int pricePerKm2 = sCharge2;
-                                            dsToCustomer += calculateDistance(lat1, lon1, doc1['lat'], doc1['lon']);
+                                            dsToCustomer += (change == false) ? calculateDistance(doc['lat'], doc['lon'], doc1['lat'], doc1['lon'])
+                                            : calculateDistance(doc['lat'], doc['lon'], lat2, lon2);
                                             totalDistance = dsToCustomer;
-                                            var charge = (totalDistance.round() < 50) ? totalDistance.round() * pricePerKm : totalDistance.round() * pricePerKm2;
+                                            var charge = (totalDistance.round() < minDistance) ? totalDistance.round() * pricePerKm : totalDistance.round() * pricePerKm2;
 
                                             var mainBst = bst/100*itemValue;
 
@@ -919,7 +930,7 @@ class _OrderSummaryState extends State<OrderSummary> {
                                                         children: [
                                                           Text('Total Amount', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.amber[900])),
                                                           SizedBox(width: 30.w,),
-                                                          Text('BTN ' + '$totalAmount', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.amber[900], fontWeight: FontWeight.w700))
+                                                          Text('BTN ' + '$totalAmount' + '.0', style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.amber[900], fontWeight: FontWeight.w700))
                                                         ],
                                                       ),
                                                     ),
@@ -987,6 +998,7 @@ class _OrderSummaryState extends State<OrderSummary> {
                                                                     onChanged: (value) {
                                                                       setState(() {
                                                                         this.check = value!;
+                                                                        change = false;
                                                                       });
                                                                       if(visibility == false) {
                                                                         setState(() {
@@ -1045,10 +1057,11 @@ class _OrderSummaryState extends State<OrderSummary> {
                                                                             final geometry = detail.result.geometry!;
 
                                                                             setState(() {
+                                                                              change = true;
                                                                               _location.text = place.description.toString();
-                                                                              deliveryAddress = place.description.toString();
                                                                               lat2 = geometry.location.lat;
                                                                               lon2 = geometry.location.lng;
+                                                                              deliveryAddress = place.description.toString();
                                                                             });
                                                                           }
                                                                         },
@@ -1119,7 +1132,7 @@ class _OrderSummaryState extends State<OrderSummary> {
                                                         'total': '$itemValue',
                                                         'bst': mainBst,
                                                         'serviceCharge': doc['serviceCharge'],
-                                                        'deliveryAddress': deliveryAddress,
+                                                        'deliveryAddress': (change == false) ? doc1['deliverAddress'] : deliveryAddress,
                                                         'deliveryCharge': "$charge",
                                                         'discountOnDC': '$discountOnDc',
                                                         'discountOnItem': '$discountOnItem',
@@ -1131,20 +1144,24 @@ class _OrderSummaryState extends State<OrderSummary> {
                                                         'admin': notification,
                                                         'cancel': notification,
                                                         'seen': notification,
-                                                        'status': 'unassigned orders',
-                                                        'uid': (_auth.currentUser)!.uid,
-                                                      });
-                                                      FirebaseFirestore.instance.collection('Rating5')
-                                                          .doc(orderId).set({
-                                                        'dateTime': dateTime,
-                                                        'orderId': orderId,
-                                                        'orderFrom': doc['shopName'],
-                                                        'orderBy': ds[index]['orderBy'],
                                                         'rating': 1.0,
                                                         'comment': '',
                                                         'isRated': false,
+                                                        'status': 'unassigned orders',
+                                                        'paymentStatus': 'not paid',
                                                         'uid': (_auth.currentUser)!.uid,
-                                                      }).then((value) => print('Success'));
+                                                      });
+                                                      // FirebaseFirestore.instance.collection('Rating5')
+                                                      //     .doc(orderId).set({
+                                                      //   'dateTime': dateTime,
+                                                      //   'orderId': orderId,
+                                                      //   'orderFrom': doc['shopName'],
+                                                      //   'orderBy': ds[index]['orderBy'],
+                                                      //   'rating': 1.0,
+                                                      //   'comment': '',
+                                                      //   'isRated': false,
+                                                      //   'uid': (_auth.currentUser)!.uid,
+                                                      // }).then((value) => print('Success'));
                                                       _onPressed();
 
                                                       for(int i=0; i<ds.length;i++) {
@@ -1153,7 +1170,7 @@ class _OrderSummaryState extends State<OrderSummary> {
                                                         int quantity = ds[i]['orderCount'];
 
                                                         FirebaseFirestore.instance
-                                                            .collection("StoreItem").doc(sId)
+                                                            .collection("StoreItem2").doc(sId)
                                                             .get().then((value){
                                                           for(int j =0; j<value.data()!['size'].length; j++) {
                                                             var array = [];
@@ -1163,10 +1180,10 @@ class _OrderSummaryState extends State<OrderSummary> {
                                                             } else {
                                                               array = [{'size': value.data()!["size"][j]["size"], 'quantity': value.data()!["size"][j]["quantity"],}];
                                                             }
-                                                            FirebaseFirestore.instance.collection('StoreItem').doc(sId).update({
+                                                            FirebaseFirestore.instance.collection('StoreItem2').doc(sId).update({
                                                               'size': FieldValue.arrayRemove(array2),
                                                             }).then((value) => {
-                                                              FirebaseFirestore.instance.collection('StoreItem').doc(sId).update({
+                                                              FirebaseFirestore.instance.collection('StoreItem2').doc(sId).update({
                                                                 'size': FieldValue.arrayUnion(array),
                                                               })
                                                             });

@@ -8,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:oie_wheels/content/store.dart';
+import 'package:oie_wheels/pages/location1.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class FetchAllRestaurant extends StatefulWidget {
@@ -26,6 +27,15 @@ class _FetchAllRestaurantState extends State<FetchAllRestaurant> {
     return (_auth.currentUser)!.uid;
   }
 
+  @override
+  void initState() {
+    super.initState();
+    FirebaseFirestore.instance.collection('Users').doc((_auth.currentUser)!.uid).get().then((value){
+      location = value.data()!['location'];
+    });
+  }
+
+  var location;
   var date = DateTime.now();
   DateFormat dateFormat = new DateFormat.Hm();
   @override
@@ -234,8 +244,13 @@ class _FetchAllRestaurantState extends State<FetchAllRestaurant> {
                                     FirebaseFirestore.instance.collection('View').doc((_auth.currentUser)!.uid).collection('StoreItem').doc((_auth.currentUser)!.uid).set({
                                       'restaurantName': document['restaurantName'],
                                       'rid': document['uid'],
+                                    }).then((value) {
+                                      if(location == false) {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => Location1()));
+                                      } else {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => Store()));
+                                      }
                                     });
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => Store()));
                                   }else{
                                     Fluttertoast.showToast(
                                         msg: document['restaurantName'] + ' is closed right now.' + ' Please try again later.',
@@ -270,7 +285,7 @@ class _FetchAllRestaurantState extends State<FetchAllRestaurant> {
                           SizedBox(height: 90.h, child: VerticalDivider(color: Colors.black.withOpacity(0.6))),
                           Expanded(
                             child: StreamBuilder<QuerySnapshot>(
-                              stream: FirebaseFirestore.instance.collection('Rating5')
+                              stream: FirebaseFirestore.instance.collection('OrderHistory')
                                   .where('orderFrom', isEqualTo: document['restaurantName'])
                                   .where('isRated',isEqualTo: true)
                                   .snapshots(),
@@ -354,6 +369,15 @@ class _FetchOpenNowState extends State<FetchOpenNow> {
     return (_auth.currentUser)!.uid;
   }
 
+  @override
+  void initState() {
+    super.initState();
+    FirebaseFirestore.instance.collection('Users').doc((_auth.currentUser)!.uid).get().then((value){
+      location = value.data()!['location'];
+    });
+  }
+
+  var location;
   var date = DateTime.now();
   DateFormat dateFormat = new DateFormat.Hm();
   @override
@@ -571,8 +595,13 @@ class _FetchOpenNowState extends State<FetchOpenNow> {
                                       FirebaseFirestore.instance.collection('View').doc((_auth.currentUser)!.uid).collection('StoreItem').doc((_auth.currentUser)!.uid).set({
                                         'restaurantName': document['restaurantName'],
                                         'rid': document['uid'],
+                                      }).then((value) {
+                                        if(location == false) {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => Location1()));
+                                        } else {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => Store()));
+                                        }
                                       });
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Store()));
                                     }else{
                                       Fluttertoast.showToast(
                                           msg: document['restaurantName'] + ' is closed right now.' + ' Please try again later.',
@@ -607,7 +636,7 @@ class _FetchOpenNowState extends State<FetchOpenNow> {
                             SizedBox(height: 90.h, child: VerticalDivider(color: Colors.black.withOpacity(0.6))),
                             Expanded(
                               child: StreamBuilder<QuerySnapshot>(
-                                stream: FirebaseFirestore.instance.collection('Rating5')
+                                stream: FirebaseFirestore.instance.collection('OrderHistory')
                                     .where('orderFrom', isEqualTo: document['restaurantName'])
                                     .where('isRated',isEqualTo: true)
                                     .snapshots(),
@@ -694,6 +723,15 @@ class _FetchCloseTodayState extends State<FetchCloseToday> {
     return (_auth.currentUser)!.uid;
   }
 
+  @override
+  void initState() {
+    super.initState();
+    FirebaseFirestore.instance.collection('Users').doc((_auth.currentUser)!.uid).get().then((value){
+      location = value.data()!['location'];
+    });
+  }
+
+  var location;
   var date = DateTime.now();
   DateFormat dateFormat = new DateFormat.Hm();
   @override
@@ -913,8 +951,13 @@ class _FetchCloseTodayState extends State<FetchCloseToday> {
                                     FirebaseFirestore.instance.collection('View').doc((_auth.currentUser)!.uid).collection('StoreItem').doc((_auth.currentUser)!.uid).set({
                                       'restaurantName': document['restaurantName'],
                                       'rid': document['uid'],
+                                    }).then((value) {
+                                      if(location == false) {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => Location1()));
+                                      } else {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => Store()));
+                                      }
                                     });
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => Store()));
                                   }else{
                                     Fluttertoast.showToast(
                                         msg: document['restaurantName'] + ' is closed right now.' + ' Please try again later.',
@@ -949,7 +992,7 @@ class _FetchCloseTodayState extends State<FetchCloseToday> {
                           SizedBox(height: 90.h, child: VerticalDivider(color: Colors.black.withOpacity(0.6))),
                           Expanded(
                             child: StreamBuilder<QuerySnapshot>(
-                              stream: FirebaseFirestore.instance.collection('Rating5')
+                              stream: FirebaseFirestore.instance.collection('OrderHistory')
                                   .where('orderFrom', isEqualTo: document['restaurantName'])
                                   .where('isRated',isEqualTo: true)
                                   .snapshots(),

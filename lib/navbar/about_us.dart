@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -60,7 +59,7 @@ class _AboutUsState extends State<AboutUs> {
                 ),
                 child: SingleChildScrollView(
                   child: StreamBuilder(
-                      stream: FirebaseFirestore.instance.collection('Setting').doc('26061999').snapshots(),
+                      stream: FirebaseFirestore.instance.collection('AboutUs').doc('26061999').snapshots(),
                       builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                         if (!snapshot.hasData) {
                           return Center(child: SpinKitWave(

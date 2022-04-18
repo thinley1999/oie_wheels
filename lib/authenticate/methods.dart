@@ -27,6 +27,7 @@ Future<User?> createAccount(String firstname, String lastname, String email, Str
       "confirmPassword": confirmPassword,
       "lat": lat,
       "lon": lon,
+      "location": false,
       "imageUrl": "https://i1.wp.com/www.baytekent.com/wp-content/uploads/2016/12/facebook-default-no-profile-pic1.jpg?resize=300%2C300&ssl=1",
       "role": "users",
       "searchKey": firstname[0],

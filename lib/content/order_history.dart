@@ -52,8 +52,8 @@ class _OrderHistoryState extends State<OrderHistory> {
             height: 65.h,
             child: Center(
                 child: Image.asset(
-                  'assets/logo1.png',
-                  width: 110.w,
+                  'assets/logo2.png',
+                  width: 130.w,
                 )
             ),
           ),
@@ -108,7 +108,8 @@ class _OrderHistoryState extends State<OrderHistory> {
                                           Text(dateTime, style: GoogleFonts.inter(fontSize: 11.sp, color: Colors.grey)),
                                         ],
                                       ),
-                                    ), (doc['status'] == 'unassigned orders' || doc['status'] == 'order confirm' || doc['status'] == 'being prepared' || doc['status'] == 'on the way' || doc['status'] == 'delivered')
+                                    ),
+                                    (doc['status'] == 'unassigned orders' || doc['status'] == 'order confirm' || doc['status'] == 'being prepared' || doc['status'] == 'on the way')
                                         ? GestureDetector(
                                       onTap: () {
                                         FirebaseFirestore.instance.collection('Order').doc((_auth.currentUser)!.uid).collection('View').doc((_auth.currentUser)!.uid).set({
@@ -132,7 +133,7 @@ class _OrderHistoryState extends State<OrderHistory> {
                                         ),
                                       ),
                                     )
-                                        :(doc['status'] == 'paid' || doc['status'] == 'partially paid')
+                                        :(doc['status'] == 'delivered')
                                         ? GestureDetector(
                                       onTap: () {
                                         FirebaseFirestore.instance.collection('Order').doc((_auth.currentUser)!.uid).collection('View').doc((_auth.currentUser)!.uid).set({
@@ -180,7 +181,7 @@ class _OrderHistoryState extends State<OrderHistory> {
                                         Text(doc['orderFrom'], style: GoogleFonts.inter(fontSize: 12.sp, fontWeight: FontWeight.w800)),
                                         Padding(
                                           padding: EdgeInsets.only(top: 2.h),
-                                          child: Text('Amount: BTN ' + doc['totalAmount'].toString(), style: GoogleFonts.inter(fontSize: 11.sp, color:Colors.grey)),
+                                          child: Text(doc['from'] == 'restaurant'? 'Amount: BTN ' + doc['totalAmount'].toString() + '0' : 'Amount: BTN ' + doc['totalAmount'].toString() + '.00', style: GoogleFonts.inter(fontSize: 11.sp, color:Colors.grey)),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.only(top: 2.h),
@@ -298,10 +299,10 @@ class _OrderHistoryState extends State<OrderHistory> {
                                                             } else {
                                                               array = [{'size': value.data()!["size"][j]["size"], 'quantity': value.data()!["size"][j]["quantity"],}];
                                                             }
-                                                            FirebaseFirestore.instance.collection('StoreItem').doc(sId).update({
+                                                            FirebaseFirestore.instance.collection('StoreItem2').doc(sId).update({
                                                               'size': FieldValue.arrayRemove(array2),
                                                             }).then((value) => {
-                                                              FirebaseFirestore.instance.collection('StoreItem').doc(sId).update({
+                                                              FirebaseFirestore.instance.collection('StoreItem2').doc(sId).update({
                                                                 'size': FieldValue.arrayUnion(array),
                                                               })
                                                             });
@@ -374,10 +375,10 @@ class _OrderHistoryState extends State<OrderHistory> {
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
-                                        Text(doc['total'], style: GoogleFonts.inter(fontSize: 12.sp, color: Colors.grey)),
-                                        Text(doc['deliveryCharge'] + '.0', style: GoogleFonts.inter(fontSize: 12.sp, color: Colors.grey)),
-                                        Text(doc['discountOnDC'] + '.0', style: GoogleFonts.inter(fontSize: 12.sp, color: Colors.grey)),
-                                        Text(doc['discountOnItem'], style: GoogleFonts.inter(fontSize: 12.sp, color: Colors.grey)),
+                                        Text(doc['total'] + '0', style: GoogleFonts.inter(fontSize: 12.sp, color: Colors.grey)),
+                                        Text(doc['deliveryCharge'] + '.00', style: GoogleFonts.inter(fontSize: 12.sp, color: Colors.grey)),
+                                        Text(doc['discountOnDC'] + '0', style: GoogleFonts.inter(fontSize: 12.sp, color: Colors.grey)),
+                                        Text(doc['discountOnItem'] + '0', style: GoogleFonts.inter(fontSize: 12.sp, color: Colors.grey)),
                                       ],
                                     ),
                                   ],
@@ -392,7 +393,7 @@ class _OrderHistoryState extends State<OrderHistory> {
                                   children: [
                                     Text('Total Amount', style: GoogleFonts.inter(fontSize: 12.sp, fontWeight: FontWeight.w800)),
                                     SizedBox(width: 50.w),
-                                    Text('BTN ' + doc['totalAmount'].toString(), style: GoogleFonts.inter(fontSize: 12.sp, fontWeight: FontWeight.w800)),
+                                    Text(doc['from'] == 'restaurant' ? 'BTN ' + doc['totalAmount'].toString() + '0' : 'BTN ' + doc['totalAmount'].toString() + '.00', style: GoogleFonts.inter(fontSize: 12.sp, fontWeight: FontWeight.w800)),
                                   ],
                                 ),
                               )

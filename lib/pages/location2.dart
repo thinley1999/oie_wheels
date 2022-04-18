@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:location/location.dart';
-import 'package:oie_wheels/content/store.dart';
+import 'package:oie_wheels/content/shop.dart';
 
 
-class Demo extends StatefulWidget {
+class Location2 extends StatefulWidget {
   @override
-  _DemoState createState() => _DemoState();
+  _Location2State createState() => _Location2State();
 }
 
-class _DemoState extends State<Demo> {
+class _Location2State extends State<Location2> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -55,7 +55,7 @@ class _DemoState extends State<Demo> {
         'lon': _userLocation!.longitude,
         'location': true,
       }).then((value) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Store()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Shop()));
       });
     }
   }

@@ -63,53 +63,57 @@ class _NotificationsState extends State<Notifications> {
                 ),
               );
             } else {
-              return snapshot.data!.docs.isNotEmpty ? ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index){
-                    var doc = snapshot.data!.docs[index];
-                    DateTime formattedDate = DateTime.parse(doc['dateTime']);
-                    String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
-                    return SingleChildScrollView(
-                      child:   Container(
-                        margin: EdgeInsets.fromLTRB(10.w, 5.h, 10.w, 0),
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(3.sp)
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                    height: 30.h,
-                                    width: 30.w,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Color(0xFFE8EAF6),
-                                    ),
-                                    child: Icon(FontAwesomeIcons.bell, size: 20.sp, color: Colors.black.withOpacity(0.2))
-                                ),
-                                SizedBox(width: 10.w),
-                                Text(
-                                  'A new order request ' + "'${doc['orderId']}'" +  ' has arrived.',
-                                  style: GoogleFonts.inter(fontSize: 12.sp, fontWeight: FontWeight.w600),
-                                )
-                              ],
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                dateTime,
-                                style: GoogleFonts.inter(fontSize: 12.sp,),
+              return snapshot.data!.docs.isNotEmpty ? SingleChildScrollView(
+                child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: ClampingScrollPhysics(),
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index){
+                      var doc = snapshot.data!.docs[index];
+                      DateTime formattedDate = DateTime.parse(doc['dateTime']);
+                      String dateTime = DateFormat.yMMMMd('en_US').add_jm().format(formattedDate);
+                      return SingleChildScrollView(
+                        child:   Container(
+                          margin: EdgeInsets.fromLTRB(10.w, 5.h, 10.w, 0),
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(3.sp)
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                      height: 30.h,
+                                      width: 30.w,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Color(0xFFE8EAF6),
+                                      ),
+                                      child: Icon(FontAwesomeIcons.bell, size: 20.sp, color: Colors.black.withOpacity(0.2))
+                                  ),
+                                  SizedBox(width: 10.w),
+                                  Text(
+                                    (doc['status'] != 'cancelled') ? 'A new order request ' + "'${doc['orderId']}'" +  ' has arrived.'
+                                    : 'Your order' + "'${doc['orderId']}'" +  ' has been cancelled.',
+                                    style: GoogleFonts.inter(fontSize: 12.sp, fontWeight: FontWeight.w600),
+                                  )
+                                ],
                               ),
-                            )
-                          ],
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  dateTime,
+                                  style: GoogleFonts.inter(fontSize: 12.sp,),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  }
+                      );
+                    }
+                ),
               )
               : Center(
                 child: Column(

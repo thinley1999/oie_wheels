@@ -7,6 +7,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:oie_wheels/content/shop.dart';
+import 'package:oie_wheels/pages/location2.dart';
 import 'package:scroll_indicator/scroll_indicator.dart';
 
 class MainShop extends StatefulWidget {
@@ -19,6 +20,15 @@ class _MainShopState extends State<MainShop> {
 
   Future<String> getCurrentUID() async{
     return (_auth.currentUser)!.uid;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    dataList = FirebaseFirestore.instance.collection('ShopItemCategory').orderBy('shopItemType', descending: false).snapshots();
+    FirebaseFirestore.instance.collection('Users').doc((_auth.currentUser)!.uid).get().then((value){
+      location = value.data()!['location'];
+    });
   }
 
   void _onPressed() {
@@ -40,6 +50,40 @@ class _MainShopState extends State<MainShop> {
     });
   }
 
+  var location;
+  var dataList;
+  var queryResultSet = [];
+  var tempSearchStore = [];
+
+  initiateSearch(value) {
+    if (value.length == 0) {
+      setState(() {
+        dataList = FirebaseFirestore.instance.collection('ShopItemCategory').orderBy('shopItemType', descending: false).snapshots();
+        queryResultSet = [];
+        tempSearchStore = [];
+      });
+    }
+
+    var capitalizedValue = value.substring(0, 1).toUpperCase() + value.substring(1);
+
+    if (queryResultSet.length == 0 && value.length == 1) {
+      dataList(value).then((QuerySnapshot docs) {
+        for (int i = 0; i < docs.docs.length; ++i) {
+          queryResultSet.add(docs.docs[i].data());
+        }
+      });
+    } else {
+      tempSearchStore = [];
+      queryResultSet.forEach((element) {
+        if (element['restaurantName'].startsWith(capitalizedValue)) {
+          setState(() {
+            tempSearchStore.add(element);
+          });
+        }
+      });
+    }
+  }
+
   final controller = ScrollController();
   @override
   Widget build(BuildContext context) {
@@ -59,11 +103,49 @@ class _MainShopState extends State<MainShop> {
                 icon: Icon(FontAwesomeIcons.chevronLeft, color: Colors.white, size: 20.sp,),
                 onPressed: () {
                   _onPressed();
-                  Navigator.pop(context);
+                  Navigator.of(context).pop();
                 },
               ),
-              title: Text('Shop', style: GoogleFonts.inter(
-                  fontSize: 15.sp, fontWeight: FontWeight.bold)),
+              title: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(width: 1.sp, color: Colors.white),
+                  ),
+                ),
+                margin: EdgeInsets.only(bottom: 2.h),
+                child: Row(
+                  children: [
+                    Icon(
+                      FontAwesomeIcons.search,
+                      color: Colors.white,
+                      size: 18.sp,
+                    ),
+                    SizedBox(width: 10.w,),
+                    Expanded(
+                      child: TextFormField(
+                        cursorColor: Colors.white,
+                        style: GoogleFonts.inter(fontSize: 18.sp, color: Colors.white),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          hintText: "Search Item Category",
+                          hintStyle: GoogleFonts.inter(fontSize: 14.sp, color: Colors.white),
+                        ),
+                        onChanged: (val) {
+                          initiateSearch(val);
+                          setState(() {
+                            dataList = FirebaseFirestore.instance
+                                .collection('ShopItemCategory')
+                                .where('searchKey',
+                                isEqualTo: val.substring(0, 1).toUpperCase())
+                                .snapshots();
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               centerTitle: true,
               bottomOpacity: 0.0,
               elevation: 0.0, backgroundColor: Color(0xFF1976D2)
@@ -106,10 +188,15 @@ class _MainShopState extends State<MainShop> {
                                       FirebaseFirestore.instance.collection('View').doc((_auth.currentUser)!.uid).collection('Shop').doc((_auth.currentUser)!.uid).set(
                                           {
                                             'shopItemType': document['shopItemType'],
-                                            'shopName': 'Kay Clothing',
+                                            'shopName': 'OieWheels Shop',
                                           }
-                                      );
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Shop()));
+                                      ).then((value) {
+                                        if(location == false) {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => Location2()));
+                                        } else {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => Shop()));
+                                        }
+                                      });
                                     },
                                   ),
                                   fit: BoxFit.cover,
@@ -149,10 +236,19 @@ class _MainShopState extends State<MainShop> {
                   ),
                   Expanded(
                     child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance.collection('ShopItemCategory').orderBy('shopItemType', descending: false).snapshots(),
+                      stream: dataList,
                       builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return AlphabetScrollView(
+                        if (!snapshot.hasData) {
+                          return Center(
+                            child: SpinKitWave(
+                              size: 30.sp,
+                              color: Colors.amber[900],
+                              duration:  Duration(milliseconds: 800),
+                            ),
+                          );
+
+                        } else {
+                          return snapshot.data!.docs.isNotEmpty ? AlphabetScrollView(
                               list: snapshot.data!.docs.map((e) => AlphaModel(e['shopItemType'])).toList(),
                               alignment: LetterAlignment.right,
                               itemExtent: 35.h,
@@ -175,7 +271,7 @@ class _MainShopState extends State<MainShop> {
                                 var document = snapshot.data!.docs[k];
 
                                 return ListTile(
-                                  title: Text('$id', style: GoogleFonts.inter(fontSize: 16.sp)),
+                                  title: Text('${document['shopItemType']}', style: GoogleFonts.inter(fontSize: 16.sp)),
                                   leading: Container(
                                     height: 30.h,
                                     width: 30.w,
@@ -193,22 +289,29 @@ class _MainShopState extends State<MainShop> {
                                     FirebaseFirestore.instance.collection('View').doc((_auth.currentUser)!.uid).collection('Shop').doc((_auth.currentUser)!.uid).set(
                                         {
                                           'shopItemType': document['shopItemType'],
-                                          'shopName': 'Kay Clothing',
+                                          'shopName': 'OieWheels Shop',
                                         }
-                                    );
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => Shop()));
+                                    ).then((value) {
+                                      if(location == false) {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => Location2()));
+                                      } else {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => Shop()));
+                                      }
+                                    });
                                   },
                                 );
                               }
+                          )
+                          : Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(FontAwesomeIcons.folder, size: 80.sp, color: Colors.amber[900]),
+                                Text('No Data Found', style: GoogleFonts.inter(fontSize: 20.sp, color: Colors.amber[900])),
+                              ],
+                            ),
                           );
                         }
-                        return Center(
-                          child: SpinKitWave(
-                            size: 30.sp,
-                            color: Colors.amber[900],
-                            duration:  Duration(milliseconds: 800),
-                          ),
-                        );
                       },
                     ),
                   ),

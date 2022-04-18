@@ -504,9 +504,6 @@ class _EditProfileState extends State<EditProfile> {
                           if (input.length > 8) {
                             return "Phone Number must be  8 digit only";
                           }
-                          // if(!RegExp(r'(^(?:[+0]9)?[0-9]{10,12}$)').hasMatch(input)){
-                          //   return 'Please enter valid phone number';
-                          // }
                           else {
                             return null;
                           }
@@ -515,80 +512,6 @@ class _EditProfileState extends State<EditProfile> {
                   ),
                 ),
                 SizedBox(height: 3.h),
-                // Padding(
-                //   padding: EdgeInsets.symmetric(horizontal: 18.w),
-                //   child: Container(
-                //     height: 45.h,
-                //     decoration: BoxDecoration(
-                //         boxShadow: [
-                //           BoxShadow(
-                //             color: Colors.white,
-                //           ),
-                //         ],
-                //         borderRadius: BorderRadius.circular(5),
-                //         border: Border.all(color: Color(0xffBDBDBD))),
-                //     child: Padding(
-                //       padding: EdgeInsets.symmetric(horizontal: 8.w),
-                //       child: TextFormField(
-                //         style: GoogleFonts.inter(fontSize: 13.sp),
-                //         controller: api.addressController,
-                //         decoration: InputDecoration(
-                //             floatingLabelStyle: TextStyle(color: Colors.amber[700]),
-                //             focusedBorder: InputBorder.none,
-                //             enabledBorder: InputBorder.none,
-                //             prefixIcon: Icon(Icons.pin_drop_outlined, color: Colors.amber[700],size: 20.sp,),
-                //             labelText: 'Search & Enter address',
-                //             labelStyle: GoogleFonts.inter(fontSize: 13.sp)
-                //         ),
-                //         // validator: (String ? value) {
-                //         //   if(value!.isEmpty) {
-                //         //     return 'Please enter delivery address';
-                //         //   }
-                //         //   return null;
-                //         // },
-                //         onChanged: api.handleSearch,
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                // Container(
-                //   height: 50.h,
-                //   width: 330.w,
-                //   color: Colors.blue[100]?.withOpacity(.3),
-                //   child: StreamBuilder<List<Place>>(
-                //       stream: api.controllerOut,
-                //       builder: (context, snapshot) {
-                //         if(snapshot.data == null) {
-                //           return Center(child: Text('No data address found', style: GoogleFonts.inter(fontSize: 13.sp),));
-                //         }
-                //         final data = snapshot.data;
-                //         return Scrollbar(
-                //           controller: _scrollController,
-                //           child: SingleChildScrollView(
-                //             child: Builder(
-                //                 builder: (context) {
-                //                   return Column(
-                //                     children: List.generate(
-                //                         data!.length, (index) {
-                //                       final place = data[index];
-                //                       return ListTile(
-                //                         onTap: () {
-                //                           api.addressController.text =
-                //                           '${place.street}, ${place.locality}, ${place.country}';
-                //                         },
-                //                         title: Text('${place.street}, ${place.locality}'),
-                //                         subtitle: Text('${place.country}'),
-                //                       );
-                //                     }),
-                //                   );
-                //                 }
-                //             ),
-                //           ),
-                //         );
-                //       }
-                //   ),
-                // ) ,
-                // SizedBox(height: 10.h,),
                 GestureDetector(
                   onTap: () {
                     if(_formKey.currentState!.validate()) {

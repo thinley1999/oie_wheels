@@ -123,46 +123,7 @@ class _ShopDrawerState extends State<ShopDrawer> {
                   ),
                   Expanded(
                     child: ListTile(
-                      leading: Stack(
-                        children: [
-                          Icon(FontAwesomeIcons.bell, color: Colors.amber[700], size: 28.sp,),
-                          Positioned(
-                              left: 10.w,
-                              bottom: 8.h,
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    height: 15.h,
-                                    width: 15.w,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.red,
-                                    ),
-                                    child: Center(
-                                      child: (shopName != null) ? StreamBuilder<QuerySnapshot>(
-                                          stream: FirebaseFirestore.instance
-                                              .collection('OrderHistory')
-                                              .where('orderFrom', isEqualTo: shopName)
-                                              .where('status', isEqualTo: 'unassigned orders')
-                                              .where('seen', isEqualTo: false)
-                                              .snapshots(),
-                                          builder: (context, snapshot){
-
-                                            if (snapshot.hasData){
-
-                                              return Text(snapshot.data!.size.toString(), style: GoogleFonts.inter(fontSize: 10.sp, color: Colors.white));
-                                            }
-                                            return Container();
-                                          }
-                                      )
-                                      : CircularProgressIndicator(),
-                                    ),
-                                  )
-                                ],
-                              )
-                          )
-                        ],
-                      ),
+                      leading: Icon(FontAwesomeIcons.bell, color: Colors.amber[700], size: 28.sp,),
                       title: Text(
                         'Notification',
                         style: GoogleFonts.inter(fontSize: 13.sp, color: Color(0xFF757575), fontWeight: FontWeight.bold),

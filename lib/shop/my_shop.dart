@@ -128,7 +128,6 @@ class _MyShopState extends State<MyShop> {
                                                 'shopAddress': document['shopAddress'],
                                                 'deliveryTime': document['deliveryTime'],
                                                 'district': document['district'],
-                                                'city': document['city'],
                                                 'discount': document['discount'],
                                                 'startDate': document['startDate'],
                                                 'endDate': document['endDate'],
